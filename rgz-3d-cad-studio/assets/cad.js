@@ -509,8 +509,14 @@
   function curveCurveInt(ca, cb) {
     var out = [];
     if (ca.k === "seg" && cb.k === "seg") {
-      var ip = segSegInt(ca.a, ca.b, cb.a, cb.b);
-      if (ip) { out.push(ip.p); }
+      /* unbounded first (TRIM + EXTEND, like AutoCAD) — then fall back to the
+         bounded crossing if the infinite lines are parallel / degenerate */
+      var raw = lineLineInt(ca.a, ca.b, cb.a, cb.b);
+      if (raw) { out.push(raw); }
+      else {
+        var ip = segSegInt(ca.a, ca.b, cb.a, cb.b);
+        if (ip) { out.push(ip.p); }
+      }
       return out;
     }
     if (ca.k !== cb.k) {
@@ -909,6 +915,25 @@
     var sh = qs(root, "[data-sheet]"); if (sh) { sh.style.display = st === "drawing" ? "block" : "none"; }
     if (is2d) { skResize(); }
   }
+  function renderDrawingSheet() {
+    var rs = window.__rgzcadRenderSheet || (window.__rgzcad3 && window.__rgzcad3.renderSheet);
+    if (typeof rs === "function") {
+      try { rs(); } catch (err) {
+        var host = qs(document, "[data-sheet]");
+        if (host) {
+          host.style.display = "block";
+          host.innerHTML = '<div class="rgzcad-empty" style="margin:40px auto;max-width:420px">The drawing could not be built (' + esc(err && err.message ? err.message : err) + "). Pad the sketch, then open ISO Drawing again.</div>";
+        }
+        note("ISO drawing failed: " + (err && err.message ? err.message : err));
+      }
+    } else {
+      var host2 = qs(document, "[data-sheet]");
+      if (host2) {
+        host2.style.display = "block";
+        host2.innerHTML = '<div class="rgzcad-empty" style="margin:40px auto;max-width:420px">Drawing module is still starting — click <b>ISO Drawing</b> again in a moment.</div>';
+      }
+    }
+  }
   function setStep(st) {
     /* 'plane' is the pre-sketch start state: 3D view with pickable datum planes */
     if (st !== "plane" && !STEPS.some(function (s2) { return s2.id === st; })) { return; }
@@ -931,7 +956,7 @@
       if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(true); }
       if (window.__rgzcad2 && window.__rgzcad2.fitCamSoon) { window.__rgzcad2.fitCamSoon(); }
     }
-    if (st === "drawing" && window.__rgzcadRenderSheet) { window.__rgzcadRenderSheet(); }
+    if (st === "drawing") { renderDrawingSheet(); }
   }
   function refreshSteps() {
     var root = document.querySelector("[data-rgzcad]");
@@ -976,7 +1001,33 @@
   }
   function snapPt(p) {
     var st = S.snap ? 1 : 0.1;
-    return [Math.round(p[0] / st) * st, Math.round(p[1] / st) * st];
+    var g = [Math.round(p[0] / st) * st, Math.round(p[1] / st) * st];
+    var skc = sketch();
+    if (!skc || !skCanvas) { return g; }
+    var best = null, bd = Math.max(1.2, 10 / Math.max(S.cam.z, 0.2));
+    function consider(q) {
+      if (!q) { return; }
+      var d = Math.hypot(p[0] - q[0], p[1] - q[1]);
+      if (d < bd) { bd = d; best = [q[0], q[1]]; }
+    }
+    skc.entities.forEach(function (e) {
+      if (e.type === "line" || e.type === "cline") {
+        consider(e.a); consider(e.b);
+        consider([(e.a[0] + e.b[0]) / 2, (e.a[1] + e.b[1]) / 2]);
+      } else if (e.type === "circle" || e.role === "hole") {
+        consider([e.cx, e.cy]);
+        consider([e.cx + e.r, e.cy]); consider([e.cx - e.r, e.cy]);
+        consider([e.cx, e.cy + e.r]); consider([e.cx, e.cy - e.r]);
+      } else if (e.type === "rect") {
+        (entPts(e) || []).forEach(consider);
+        consider([e.cx, e.cy]);
+      } else if (e.type === "poly" && e.pts) {
+        e.pts.forEach(consider);
+      } else if (e.type === "point") {
+        consider([e.cx, e.cy]);
+      }
+    });
+    return best || g;
   }
 
   function skResize() {
@@ -1004,8 +1055,9 @@
     skc.entities.forEach(function (e) {
       var pts = entPts(e);
       if (pts) { all = all.concat(pts); }
-      else if (e.role === "hole") { all.push([e.cx - e.r, e.cy - e.r], [e.cx + e.r, e.cy + e.r]); }
+      else if (e.role === "hole" || e.type === "circle") { all.push([e.cx - e.r, e.cy - e.r], [e.cx + e.r, e.cy + e.r]); }
       else if (e.type === "cline" || e.type === "line") { all.push(e.a, e.b); }
+      else if (e.type === "poly" && e.pts) { all = all.concat(e.pts); }
       else if (e.type === "point") { all.push([e.cx, e.cy]); }
     });
     if (!all.length) { S.cam = { x: 0, y: 0, z: 5 }; skDirty(); return; }
@@ -1312,29 +1364,19 @@
   function hitEntity(wp) {
     var skc = sketch();
     if (!skc) { return null; }
-    var i, e, best = null, bestD = 8 / S.cam.z; /* px tolerance in mm */
+    var i, e, tol = 8 / Math.max(S.cam.z, 0.2);
+    /* click inside a closed profile / hole first (topmost) */
     for (i = skc.entities.length - 1; i >= 0; i--) {
       e = skc.entities[i];
       if (e.role === "hole") {
-        if (Math.hypot(wp[0] - e.cx, wp[1] - e.cy) <= e.r + bestD) { return e; }
-      } else if (e.type === "point") {
-        var dp = Math.hypot(wp[0] - e.cx, wp[1] - e.cy);
-        if (dp < bestD) { best = e; bestD = dp; }
-      } else if (e.type === "cline" || e.type === "line") {
-        var d = distToSeg(wp, e.a, e.b);
-        if (d < bestD) { best = e; bestD = d; }
+        if (Math.hypot(wp[0] - e.cx, wp[1] - e.cy) <= e.r + tol) { return e; }
       } else {
         var pts = entPts(e);
-        if (pts) {
-          if (e.type === "poly" && !e.closed) {
-            for (var k = 0; k < pts.length - 1; k++) { var dd = distToSeg(wp, pts[k], pts[k + 1]); if (dd < bestD) { best = e; bestD = dd; } }
-          } else if (pointInPoly(pts, wp[0], wp[1]) || nearEdge(pts, wp, bestD)) {
-            return e; /* topmost closed shape */
-          }
-        }
+        if (pts && pts.length >= 3 && pointInPoly(pts, wp[0], wp[1])) { return e; }
       }
     }
-    return best;
+    var hc = hitCurve(wp);
+    return hc ? hc.ent : null;
   }
   function distToSeg(p, a, b) {
     var vx = b[0] - a[0], vy = b[1] - a[1];
@@ -1933,7 +1975,7 @@
         }
         pushHist(); renderAll();
         if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(true); }
-        if (S.step === "drawing" && window.__rgzcadRenderSheet) { window.__rgzcadRenderSheet(); }
+        if (S.step === "drawing") { renderDrawingSheet(); }
       });
     });
     var bm = qs(el, "[data-mirrordef]");
@@ -2526,7 +2568,7 @@
     selectFeature(f.id);
     pushHist(); renderAll();
     if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(true); }
-    if (S.step === "drawing" && window.__rgzcadRenderSheet) { window.__rgzcadRenderSheet(); }
+    if (S.step === "drawing") { renderDrawingSheet(); }
     note(f.name + " updated — every parameter of every 3D action stays editable from the tree (⚙).");
   }
 
@@ -3087,7 +3129,7 @@
         pushHist();
         renderAll();
         if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(false); }
-        if (S.step === "drawing" && window.__rgzcadRenderSheet) { window.__rgzcadRenderSheet(); }
+        if (S.step === "drawing") { renderDrawingSheet(); }
       });
     });
     qsa(el, "[data-ui]").forEach(function (inp) {
@@ -3153,9 +3195,6 @@
         note(n + " element(s) deleted.");
       });
     });
-    qsa(el, "[data-geo]").forEach(function (b) {
-      b.addEventListener("click", function () { applyGeo(b.getAttribute("data-geo")); });
-    });
     qsa(el, "[data-geodel]").forEach(function (b) {
       b.addEventListener("click", function () {
         var e2 = entityById(sketch(), S.selEnt);
@@ -3216,7 +3255,7 @@
     qsa(el, "[data-feat-pattern]").forEach(function (sel) {
       sel.addEventListener("change", function () {
         var f = featureById(S.selFeat);
-        if (f) { f.pattern = f.pattern && f.pattern.mode ? f.pattern : mkPattern(); f.pattern.mode = sel.value; pushHist(); renderAll(); if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(false); } if (S.step === "drawing" && window.__rgzcadRenderSheet) { window.__rgzcadRenderSheet(); } }
+        if (f) { f.pattern = f.pattern && f.pattern.mode ? f.pattern : mkPattern(); f.pattern.mode = sel.value; pushHist(); renderAll(); if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(false); } if (S.step === "drawing") { renderDrawingSheet(); } }
       });
     });
     qsa(el, "[data-skedit]").forEach(function (b) { b.addEventListener("click", function () { selectSketch(b.getAttribute("data-skedit")); }); });
@@ -3264,7 +3303,13 @@
       if (!f) { return; }
       if (parts[1] === "L") { f.L = clamp(num(val, 10), 0.2, 5000); }
       else if (parts[1] === "edge") { f.edge = f.edge || { style: "none", size: 1.5 }; f.edge[parts[2]] = parts[2] === "size" ? clamp(num(val, 1), 0.2, Math.max(0.2, f.L / 2)) : val; }
-      else if (parts[1] === "tol") { f.tol[parts[2]] = val; }
+      else if (parts[1] === "tol") { f.tol = f.tol || { on: false, plus: 0, minus: 0 }; f.tol[parts[2]] = val; }
+      else if (parts[1] === "pattern") { f.pattern = f.pattern && f.pattern.mode ? f.pattern : mkPattern(); f.pattern[parts[2]] = val; }
+      else if (parts[1] === "draftDeg") { f.draftDeg = clamp(num(val, 0), 0, 30); }
+      else if (parts[1] === "shellT") { f.shellT = clamp(num(val, 0), 0, 500); }
+      else if (parts[1] === "angle") { f.angle = clamp(num(val, 360), 1, 360); }
+      else if (parts[1] === "axisX") { f.axisX = num(val, 0); }
+      else if (parts[1] === "t") { f.t = clamp(num(val, 4), 0.1, 200); }
       return;
     }
     if (parts[0] === "design") {
@@ -4503,7 +4548,7 @@
           prof.forEach(function (p) { all = all.concat(p.pts); });
           var bb = bboxOf(all);
           var first = prof[0].ent;
-          if (first.type === "rect" && prof.length === 1) {
+          if (first && first.type === "rect" && prof.length === 1) {
             dims.push({ axis: "X", label: "W", value: first.w, tol: first.tol && first.tol.w });
             dims.push({ axis: "Y", label: "H", value: first.h, tol: first.tol && first.tol.h });
           } else {
@@ -4555,6 +4600,12 @@
     }, { passive: false });
 
     qsa(root, "[data-tool]").forEach(function (b) { b.addEventListener("click", function () { setMode(b.getAttribute("data-tool")); }); });
+    /* one delegated handler: toolbar + panel chips. Per-button binds were
+       never attached to the sketch bar, so H/V/Parallel looked dead. */
+    root.addEventListener("click", function (ev) {
+      var gbtn = ev.target && ev.target.closest ? ev.target.closest("[data-geo]") : null;
+      if (gbtn && root.contains(gbtn)) { applyGeo(gbtn.getAttribute("data-geo")); }
+    });
     qsa(root, "[data-mode]").forEach(function (b) { b.addEventListener("click", function () { setMode(b.getAttribute("data-mode")); }); });
     var bSnap = qs(root, "[data-snap]");
     if (bSnap) { bSnap.addEventListener("click", function () { S.snap = !S.snap; bSnap.classList.toggle("on", S.snap); }); }
@@ -4649,7 +4700,7 @@
     sketch: sketch, sketchById: sketchById, featureById: featureById, entityById: entityById,
     profilesOf: profilesOf, holesOf: holesOf, entPts: entPts, featureVol: featureVol, partVol: partVol, featureTip: featureTip,
     iso2768: iso2768, tolText: tolText, autoTol: autoTol,
-    setStep: setStep, note: note, saveDesign: saveDesign, pushHist: pushHist,
+    setStep: setStep, renderDrawingSheet: renderDrawingSheet, note: note, saveDesign: saveDesign, pushHist: pushHist,
     renderTree: renderTree, renderPanel: renderPanel, renderAll: renderAll, selectEntity: selectEntity, selectFeature: selectFeature, selectSketch: selectSketch,
     padSketch: padSketch, pocketFromSketch: pocketFromSketch, deleteFeature: deleteFeature, deleteSketch: deleteSketch,
     featureFromActiveSketch: featureFromActiveSketch, dressSelectedFeature: dressSelectedFeature,
@@ -5491,6 +5542,7 @@ function tessellateShell(items, holes, t, L) {
       gl.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     } catch (e) { failGL(); return; }
 
+    try {
     gl.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1));
     gl.renderer.outputEncoding = THREE.sRGBEncoding;
     gl.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -5601,6 +5653,7 @@ function tessellateShell(items, holes, t, L) {
     resizeGL();
     buildModel(true);
     requestRender();
+    } catch (eBoot) { failGL(); return; }
   }
   function failGL() {
     var root = document.querySelector("[data-rgzcad]");
@@ -6764,7 +6817,7 @@ function tessellateShell(items, holes, t, L) {
 
   function renderSheet() {
     var root = document.querySelector("[data-rgzcad]");
-    var host = U.qs(root, "[data-sheet]");
+    var host = (root && U.qs(root, "[data-sheet]")) || document.querySelector("[data-sheet]");
     if (!host) { return; }
     host.style.display = "block";
     S.design.draw = U.fillDraw(S.design.draw);
@@ -6779,14 +6832,22 @@ function tessellateShell(items, holes, t, L) {
       return;
     }
     var wires = allWires();
-    var soup = (window.__rgzcad2 && window.__rgzcad2.worldSoup) ? window.__rgzcad2.worldSoup() : null;
+    var soup = null;
+    try {
+      if (window.__rgzcad2 && typeof window.__rgzcad2.worldSoup === "function") {
+        soup = window.__rgzcad2.worldSoup();
+      }
+    } catch (eSoup) { soup = null; }
     var views = names.map(function (nm) {
       var def = VIEW_DEFS[nm];
-      if (soup) {
-        var hv = hlrView(soup, def);
-        return { name: nm, def: def, runs: hv.runs, bbox: hv.bbox };
-      }
       var wr = wireRunsForView(wires, def);
+      if (soup) {
+        try {
+          var hv = hlrView(soup, def);
+          var visN = hv && hv.runs ? hv.runs.filter(function (r) { return r.vis; }).length : 0;
+          if (hv && visN) { return { name: nm, def: def, runs: hv.runs, bbox: hv.bbox }; }
+        } catch (eHlr) { /* fall through to analytic wires */ }
+      }
       return { name: nm, def: def, runs: wr.runs, bbox: wr.bbox };
     });
     window.__rgzcadViewData = views;   /* harness/debug: inspect the computed runs */
@@ -6866,12 +6927,15 @@ function tessellateShell(items, holes, t, L) {
     });
 
     /* dimensions on the anchor view (front → top → iso → first picked) */
-    var dims = U.designDims();
+    var dims = null;
+    try { dims = U.designDims(); } catch (eDim) { dims = []; }
     var anchor = null;
     ["front", "top", "iso"].forEach(function (nm) { views.forEach(function (vw) { if (!anchor && vw.name === nm) { anchor = vw; } }); });
     if (!anchor) { anchor = views[0]; }
-    if (showDims && dims.length && dims.bbox && anchor) {
-      svg += dimSvg(dims, sc, function (w) { return [anchor.cx0 + vDot(anchor.def.u, w) * sc, anchor.cy0 - vDot(anchor.def.v, w) * sc]; });
+    if (showDims && dims && dims.length && dims.bbox && anchor) {
+      try {
+        svg += dimSvg(dims, sc, function (w) { return [anchor.cx0 + vDot(anchor.def.u, w) * sc, anchor.cy0 - vDot(anchor.def.v, w) * sc]; });
+      } catch (eDim2) { /* keep the views even if a dim leader fails */ }
     }
 
     /* projection symbol — FIRST ANGLE (ISO 128-30): frustum left, circles right */
@@ -7238,13 +7302,13 @@ function tessellateShell(items, holes, t, L) {
   }
 
   function boot3() {
+    window.__rgzcadRenderSheet = renderSheet;
     var root = document.querySelector("[data-rgzcad]");
     if (!root) { return; }
-    accountBoot();
-    checkOpenHash();
+    try { accountBoot(); } catch (eAcc) {}
+    try { checkOpenHash(); } catch (eHash) {}
     var gallery = U.qs(root, "[data-start-tour]");
     U.qsa(root, "[data-start-tour]").forEach(function (b) { b.addEventListener("click", tourStart); });
-    window.__rgzcadRenderSheet = renderSheet;
     window.__rgzcadExportSVGfile = exportSVGfile;
     window.__rgzcadExportPNG = exportPNG;
     window.__rgzcadSaveAccount = saveAccount;
@@ -7260,9 +7324,9 @@ function tessellateShell(items, holes, t, L) {
 /* boot chain */
 (function () {
   function go() {
-    if (window.__rgzcadBoot1) { window.__rgzcadBoot1(); }
-    if (window.__rgzcadBoot2) { window.__rgzcadBoot2(); }
-    if (window.__rgzcadBoot3) { window.__rgzcadBoot3(); }
+    try { if (window.__rgzcadBoot1) { window.__rgzcadBoot1(); } } catch (e1) { try { console.error("RGZ CAD boot1", e1); } catch (e1b) {} }
+    try { if (window.__rgzcadBoot2) { window.__rgzcadBoot2(); } } catch (e2) { try { console.error("RGZ CAD boot2", e2); } catch (e2b) {} }
+    try { if (window.__rgzcadBoot3) { window.__rgzcadBoot3(); } } catch (e3) { try { console.error("RGZ CAD boot3", e3); } catch (e3b) {} }
   }
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", go); } else { go(); }
 })();

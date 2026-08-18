@@ -1,3 +1,34 @@
+# RGZ 3D CAD Studio — 1.0.0 feature fix (2026-08-19)
+
+The page was loading, but the sketcher and ISO drawing were not usable for
+the *100 CAD Exercises* plates. This package keeps version **1.0.0** and
+shortcode `[rgz_3d_cad_studio]`.
+
+## What was actually broken
+
+- **ISO Drawing painted nothing.** If the 3D/WebGL boot threw, the drawing
+  module never registered. A line-drawn plate also crashed `designDims`
+  (`ent` is null on chain profiles) *before* the SVG was written. Hidden-line
+  removal could also yield zero visible edges.
+- **Constraint toolbar (H / V / Parallel / …) did nothing.** Clicks were only
+  bound on the right-hand panel, never on the sketch bar.
+- **Trim refused AutoCAD-style extend.** Two lines that would meet if
+  lengthened reported “don’t intersect”.
+- **Open arcs / polylines could not be selected** (`entPts` only returned
+  closed loops), so you could not pick the curves those plates are built from.
+
+## Fixes
+
+- Boot 1/2/3 are isolated; drawing registers even if WebGL fails.
+- ISO sheet always falls back to analytic outlines; dim crash cannot blank
+  the sheet.
+- One delegated click handler for every `[data-geo]` button.
+- TRIM uses unbounded line intersection (TRIM + EXTEND).
+- Hit-test + fit + endpoint/mid/center snaps cover open arcs and chains.
+
+Install: Mechanical Deck → Apps → Install app package → tick **Overwrite**.
+
+
 # RGZ 3D CAD Studio — AutoCAD exercise pass (2026-08-18)
 
 Tested against plates from *100 CAD Exercises* (12CAD / JSCAD — lines, arcs, fillets, arrays, mirror). The live studio at houmanrgz.ir/rgz-3d-studio could not complete those drawings. Root causes and fixes:
