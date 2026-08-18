@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Download RGZ 3D CAD — two zips</title>
+<style>
+body{margin:0;font-family:ui-sans-serif,system-ui,sans-serif;background:#0b1020;color:#e8edf6;padding:32px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:24px} p{color:#9aa6bf;line-height:1.55}
+.card{border:1px solid #243049;border-radius:16px;background:#121a2d;padding:20px 24px;margin:16px 0}
+a.btn{display:inline-block;margin-top:10px;background:#eb4e3c;color:#fff;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px}
+a.btn.alt{background:#1e293b;border:1px solid #334155}
+ol{color:#c9d2e3} li{margin:8px 0}
+.note{font-size:13px;color:#94a3b8}
+</style></head><body><div class="wrap">
+<h1>The page showed the shortcode because the CAD package was not loaded</h1>
+<p>Install <b>both</b> zips. The plugin zip registers <code>[rgz_3d_cad_studio]</code> even if the package failed. The package zip is the studio itself.</p>
+<div class="card">
+<h2>1. Plugin (required to fix the blank shortcode)</h2>
+<p>WP Admin → Plugins → Add New → Upload Plugin → this zip → <b>Replace current with uploaded</b>.</p>
+<a class="btn" href="/rgz-engineering-studio.zip" download>⬇ rgz-engineering-studio.zip</a>
+</div>
+<div class="card">
+<h2>2. App package (the 3D studio)</h2>
+<p>WP Admin → RGZ Engineering Studio → Mechanical Deck → Apps → Install app package → tick <b>Overwrite</b>.</p>
+<a class="btn alt" href="/rgz-3d-cad-studio.zip" download>⬇ rgz-3d-cad-studio.zip</a>
+</div>
+<ol>
+<li>Upload the <b>plugin</b> zip first and replace the existing plugin.</li>
+<li>Upload the <b>app package</b> zip with Overwrite.</li>
+<li>Open <a href="https://houmanrgz.ir/rgz-3d-studio/" style="color:#93c5fd">/rgz-3d-studio/</a> and hard-refresh (Ctrl+F5). Purge LiteSpeed cache if needed.</li>
+</ol>
+<p class="note">After step 1 alone the page will at least stop showing the raw shortcode (it will either run the studio or show an install hint).</p>
+</div></body></html>

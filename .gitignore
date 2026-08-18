@@ -1,0 +1,5 @@
+workspace-*.zip
+extracted/
+work/
+preview/
+.arena/

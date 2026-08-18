@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Download RGZ 3D CAD Studio zips</title>
+  <style>
+    :root { --accent:#EB4E3C; --bg:#0b1020; --card:#121a2d; --line:#243049; --txt:#e8edf6; --muted:#9aa6bf; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif; background:var(--bg); color:var(--txt); }
+    .wrap { max-width:760px; margin:0 auto; padding:36px 20px 80px; }
+    h1 { font-size:28px; letter-spacing:-.02em; margin:0 0 8px; }
+    .lead { color:var(--muted); line-height:1.6; font-size:16px; }
+    .card { border:1px solid var(--line); border-radius:18px; background:var(--card); padding:22px 24px; margin:18px 0; }
+    .card h2 { margin:0 0 6px; font-size:18px; }
+    .card p { color:var(--muted); line-height:1.55; margin:8px 0 14px; }
+    .meta { font-size:12px; color:#7b879e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break:break-all; }
+    a.btn { display:inline-flex; align-items:center; gap:8px; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; padding:14px 20px; border-radius:999px; font-size:15px; }
+    a.btn:hover { filter:brightness(1.06); }
+    a.btn.ghost { background:#1e293b; border:1px solid #334155; }
+    .row { display:flex; flex-wrap:wrap; gap:10px; }
+    ol { color:#c9d2e3; padding-left:20px; }
+    li { margin:10px 0; line-height:1.5; }
+    code { background:#1a2236; padding:1px 6px; border-radius:6px; }
+    .warn { background:#2a1614; border:1px solid #5a2a24; color:#f3c4be; border-radius:14px; padding:14px 16px; }
+    .ok { color:#86efac; font-size:13px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <p class="ok">Valid WordPress zips — tested, not the earlier corrupt ones.</p>
+  <h1>Download the two upload files</h1>
+  <p class="lead">
+    Click a red button. Your browser will save the zip. Then upload it in WordPress as written below.
+    If a button opens the zip instead of saving it, right-click the button → <b>Save link as…</b>
+  </p>
+
+  <div class="card">
+    <h2>1 · Plugin zip (2.9 MB) — do this first</h2>
+    <p>WordPress Admin → <b>Plugins → Add New → Upload Plugin</b> → choose this file → <b>Replace current with uploaded</b> → Activate.</p>
+    <div class="row">
+      <a class="btn" href="downloads/1-PLUGIN-rgz-engineering-studio.zip" download="rgz-engineering-studio.zip">⬇ Download plugin zip</a>
+      <a class="btn ghost" href="rgz-engineering-studio.zip" download="rgz-engineering-studio.zip">Same file (root)</a>
+    </div>
+    <p class="meta">rgz-engineering-studio.zip · 2,889 KB · SHA-256 09aadb09335b542cb8975856b5d16c1a01f053eb91f5b3ca13da87dce7c2ebfe</p>
+  </div>
+
+  <div class="card">
+    <h2>2 · App package zip (272 KB) — the 3D studio</h2>
+    <p>WordPress Admin → <b>RGZ Engineering Studio → Mechanical Deck → Apps → Install app package</b> → tick <b>Overwrite</b> (id <code>3d-cad-studio</code> already exists).</p>
+    <div class="row">
+      <a class="btn" href="downloads/2-APP-rgz-3d-cad-studio.zip" download="rgz-3d-cad-studio.zip">⬇ Download app package zip</a>
+      <a class="btn ghost" href="rgz-3d-cad-studio.zip" download="rgz-3d-cad-studio.zip">Same file (root)</a>
+    </div>
+    <p class="meta">rgz-3d-cad-studio.zip · 272 KB · SHA-256 1c590214572b52e87f4ff53383a97dc6404e30db6eaff621aa2e9e8b13ac272b</p>
+  </div>
+
+  <div class="warn">
+    After both uploads, open <a href="https://houmanrgz.ir/rgz-3d-studio/" style="color:#fff">houmanrgz.ir/rgz-3d-studio/</a>
+    and hard-refresh (Ctrl+F5). If LiteSpeed is on, purge that page. You should see the studio, never the raw shortcode
+    <code>[rgz_3d_cad_studio]</code>.
+  </div>
+
+  <div class="card">
+    <h2>Install order</h2>
+    <ol>
+      <li>Upload <b>rgz-engineering-studio.zip</b> as a plugin and replace the current plugin.</li>
+      <li>Upload <b>rgz-3d-cad-studio.zip</b> as an app package with Overwrite ticked.</li>
+      <li>Hard-refresh the studio page. Purge cache if the shortcode is still visible.</li>
+    </ol>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "id": "3d-cad-studio",
+  "name": "RGZ 3D CAD Studio",
+  "version": "1.0.0",
+  "author": "Houman Rezagholizadeh",
+  "shortcode": "rgz_3d_cad_studio",
+  "entry": "app.php",
+  "class": "RGZ_CAD_Studio",
+  "render": "render_shortcode",
+  "card": {
+    "title": "RGZ 3D CAD Studio",
+    "desc": "Feature-based 3D part design in the browser — CATIA-style specification tree, multi-profile sketches (also on any model face), pads, pockets, holes, fillets, measure & section tools, ISO drawing + STL export. No install, and a full CAD course in the Learning Hub.",
+    "category": "CAD & Design",
+    "icon": "cad",
+    "accent": "#eb4e3c",
+    "badge": "CAD",
+    "learnTopic": "cad"
+  }
+}
