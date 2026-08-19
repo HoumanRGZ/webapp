@@ -1,3 +1,16 @@
+# RGZ 3D CAD Studio — example plates (2026-08-19)
+
+Walked every sketcher / 3D tool the way a student draws *100 Exercícios AutoCAD*.
+15 predesigned plates now load from **Example plates** (same idea as the ready-made
+circuits in Hydraulic / Pneumatic Studio).
+
+Plates: rectangle, L-bracket (6 lines), R8 + 4 holes, flange polar array,
+slot, mirror wing, line–arc U, chamfer C6, offset frame, hexagon, 3×2 hole
+grid, H/V/Equal constraints, revolved bush, pocketed block, rib.
+
+Every plate pads, has volume, and paints an ISO drawing (64/64 example tests).
+Every toolbar tool has a passing API check (58/58).
+
 # RGZ 3D CAD Studio — 1.0.0 feature fix (2026-08-19)
 
 The page was loading, but the sketcher and ISO drawing were not usable for

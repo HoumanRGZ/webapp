@@ -9,7 +9,7 @@
  * server only when the user explicitly saves to an RGZ account.
  *
  * Package: rgz-app.json + app.php + assets/{three.min.js, cad.css, cad.js,
- * cad-geometry-worker.js}. No external requests are made at runtime.
+ * cad-geometry-worker.js, examples.js}. No external requests are made at runtime.
  * three.js r149 is MIT-licensed (LICENSE text preserved in the file banner).
  */
 if (!defined('ABSPATH')) { exit; }
@@ -51,6 +51,7 @@ final class RGZ_CAD_Studio {
         wp_enqueue_style('rgz-cad', $url . 'assets/cad.css', [], $ver('assets/cad.css'));
         wp_enqueue_script('rgz-cad-three', $url . 'assets/three.min.js', [], $ver('assets/three.min.js'), true);
         wp_enqueue_script('rgz-cad', $url . 'assets/cad.js', ['rgz-cad-three'], $ver('assets/cad.js'), true);
+        wp_enqueue_script('rgz-cad-examples', $url . 'assets/examples.js', ['rgz-cad'], $ver('assets/examples.js'), true);
         wp_localize_script('rgz-cad', 'RGZCAD', [
             'accent'   => '#eb4e3c',
             'worker'   => $url . 'assets/cad-geometry-worker.js',
@@ -84,6 +85,7 @@ final class RGZ_CAD_Studio {
               <span class="rgzcad-unit">mm · ISO</span>
               <button type="button" class="rgzcad-btn ghost" data-resume hidden title="Reopen the design you last worked on in this browser">↩ Resume last design</button>
               <button type="button" class="rgzcad-btn ghost" data-newdesign title="Start a new empty part (the current one stays in My designs if you saved it)">＋ New part</button>
+              <button type="button" class="rgzcad-btn ghost" data-examples title="Load a predesigned plate from 100 Exercícios AutoCAD — like the ready-made circuits in Hydraulic / Pneumatic Studio">▤ Example plates</button>
               <a class="rgzcad-btn ghost" data-hub-link href="<?php echo esc_url(home_url('/mechanical-engineering-deck/#learn-cad')); ?>">📖 CAD &amp; Design course</a>
               <button type="button" class="rgzcad-btn ghost" data-account-chip>Sign in / Sign up<span data-account-sub></span></button>
               <button type="button" class="rgzcad-btn ghost" data-fullscreen title="Fullscreen">⤢ Fullscreen</button>

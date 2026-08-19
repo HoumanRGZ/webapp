@@ -1,5 +1,6 @@
 workspace-*.zip
 extracted/
 work/
-preview/
 .arena/
+cad-pkg/node_modules/
+cad-pkg/package-lock.json
