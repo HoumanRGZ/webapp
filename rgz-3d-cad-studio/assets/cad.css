@@ -261,3 +261,12 @@
 .rgzcad-views{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 8px;margin:2px 0 6px}
 .rgzcad-views .rgzcad-check{padding:4px 2px;font-size:12px}
 .rgzcad-btn.block{display:flex;width:100%}
+
+/* example-plate gallery (hydraulic-studio style cards) */
+.rgzcad-exgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
+.rgzcad-excard{text-align:left;border:1.5px solid var(--line);background:#fcfdff;border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.rgzcad-excard:hover{border-color:var(--rgzc-accent);box-shadow:0 0 0 3px rgba(235,78,60,.12)}
+.rgzcad-excard b{font-size:13px;color:var(--ink)}
+.rgzcad-excard small{color:var(--rgzc-accent);font-weight:700;font-size:10.5px}
+.rgzcad-excard span{color:var(--muted);font-size:11.5px;line-height:1.45}
+@media (max-width:620px){.rgzcad-exgrid{grid-template-columns:1fr}}

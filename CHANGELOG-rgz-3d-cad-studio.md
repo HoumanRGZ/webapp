@@ -1,3 +1,28 @@
+# RGZ 3D CAD Studio — book plates + tool pass (2026-08-19)
+
+Read Houman's uploaded *100 CAD Exercises* (12CAD). The plates are
+circle–arc–fillet gaskets, not rectangles. Added the missing tools and
+a Hydraulic-Studio-style **Example plates** gallery of 15 reconstructed
+parts.
+
+## Bugs found by drawing the book
+
+- **Example / Sign-in / My designs modals were invisible.** Later CSS
+  sets `.rgzcad-modal { display:none }` and only `.on` shows them.
+- **No circle–circle FILLET.** Every early plate (p.5–p.12) is bosses
+  blended with R50–R100 arcs. Corner only worked on lines/polygons.
+- **Open arcs still needed for TRIM/JOIN** (already selectable).
+
+## Added
+
+- `filletTwoCircles` / `disksOutline` / `externalTangents`
+- Corner on two selected circles
+- 15 example plates from the book (4-lug flange, gasket, rocker,
+  slotted cover, tangent link, hanger, scallop washer, U-plate,
+  hex, bolt circle, V-block, bush, pocketed block)
+- Card gallery like Hydraulic / Pneumatic ready-made circuits
+
+
 # RGZ 3D CAD Studio — example plates (2026-08-19)
 
 Walked every sketcher / 3D tool the way a student draws *100 Exercícios AutoCAD*.

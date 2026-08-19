@@ -15,7 +15,7 @@ afterBoot(function () {
     const U = win.__rgzcad1;
     expect(typeof win.RGZCAD_EXAMPLES === "function", "examples catalog loaded");
     const list = win.RGZCAD_EXAMPLES(U);
-    expect(list.length >= 12, "at least 12 book plates (" + list.length + ")");
+    expect(list.length >= 12, "at least 14 book plates (" + list.length + ")");
     expect(!!doc.querySelector("[data-examples]"), "Example plates button in the header");
 
     list.forEach(function (ex) {

@@ -702,9 +702,9 @@
         }).catch(function (e2) { btn.disabled = false; err.textContent = e2.message; });
       });
     }
-    md.hidden = false;
+    md.hidden = false; md.classList.add("on");
   }
-  function authHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-auth-modal]"); if (md) { md.hidden = true; } }
+  function authHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-auth-modal]"); if (md) { md.hidden = true; md.classList.remove("on"); } }
 
   function saveAccount() {
     if (!acct.token) { authShow("login"); U.note("Sign in first — then your design is stored on houmanrgz.ir."); return; }
@@ -727,7 +727,7 @@
     var root = document.querySelector("[data-rgzcad]");
     var md = U.qs(root, "[data-designs-modal]"), body = U.qs(root, "[data-designs-body]");
     body.innerHTML = '<div class="rgzcad-empty">Loading…</div>';
-    md.hidden = false;
+    md.hidden = false; md.classList.add("on");
     apiAuthed("rgz_cad_my_designs", {}).then(function (d) {
       var rows = (d && d.designs) || [];
       if (!rows.length) { body.innerHTML = '<div class="rgzcad-empty">No saved designs yet — build something, then “Save to my account”.</div>'; return; }
@@ -750,7 +750,7 @@
       });
     }).catch(function (e) { body.innerHTML = '<div class="rgzcad-empty">' + U.esc(e.message) + "</div>"; });
   }
-  function designsHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-designs-modal]"); if (md) { md.hidden = true; } }
+  function designsHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-designs-modal]"); if (md) { md.hidden = true; md.classList.remove("on"); } }
 
   function loadServerDesign(id) {
     if (!acct.token) { acct.openId = id; authShow("login"); U.note("Sign in to open your saved design."); return; }

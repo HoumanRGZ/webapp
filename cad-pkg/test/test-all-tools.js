@@ -76,6 +76,15 @@ afterBoot(function () {
     expect(!!farc && farc.kind === "arc", "two-line FILLET");
 
     sk = fresh();
+    const cA = U.mkEnt("circle", { cx: 0, cy: 0, r: 20 });
+    const cB = U.mkEnt("circle", { cx: 50, cy: 0, r: 20 });
+    sk.entities.push(cA, cB);
+    const cc = U.filletTwoCircles(cA, cB, 30);
+    expect(!!cc && cc.kind === "arc" && cc.pts.length > 4, "circle–circle FILLET (book gaskets)");
+    const ol = U.disksOutline([{ cx: 0, cy: 0, r: 20 }, { cx: 30, cy: 0, r: 20 }], 40);
+    expect(ol.length >= 8 && !U.selfIntersects(ol), "disksOutline of two bosses is a simple loop");
+
+    sk = fresh();
     const c1 = U.mkEnt("line", { a: [0, 0], b: [40, 0] });
     const c2 = U.mkEnt("line", { a: [0, 0], b: [0, 30] });
     sk.entities.push(c1, c2);

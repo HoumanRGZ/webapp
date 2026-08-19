@@ -4249,6 +4249,112 @@
     if (ok) { e.pts = out; }
     return ok;
   }
+  /* ---- circle–circle geometry (almost every plate in 100 CAD Exercises) ---- */
+  function circleIntersect(c1, r1, c2, r2) {
+    var dx = c2[0] - c1[0], dy = c2[1] - c1[1], d = Math.hypot(dx, dy);
+    if (d < 1e-9 || d > r1 + r2 + 1e-6 || d < Math.abs(r1 - r2) - 1e-6) { return []; }
+    var a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
+    var h2 = Math.max(0, r1 * r1 - a * a), h = Math.sqrt(h2);
+    var mx = c1[0] + a * dx / d, my = c1[1] + a * dy / d;
+    var out = [[mx - h * dy / d, my + h * dx / d]];
+    if (h > 1e-8) { out.push([mx + h * dy / d, my - h * dx / d]); }
+    return out;
+  }
+  /* AutoCAD FILLET of two CIRCLES: a blend arc of radius R, internally
+     tangent when R is large (the R100 “waist” on a gasket) and externally
+     tangent when R is small (the R5 corner). Returns {C,R,T1,T2,pts,mode}. */
+  function filletTwoCirclesGeom(c1, r1, c2, r2, R, hint) {
+    if (!(R > 0.15)) { return null; }
+    var modes = [
+      { k: "int", d1: Math.abs(R - r1), d2: Math.abs(R - r2) },
+      { k: "ext", d1: r1 + R, d2: r2 + R }
+    ];
+    var cands = [];
+    modes.forEach(function (m) {
+      circleIntersect(c1, m.d1, c2, m.d2).forEach(function (C) {
+        var u1x = c1[0] - C[0], u1y = c1[1] - C[1], L1 = Math.hypot(u1x, u1y) || 1;
+        var u2x = c2[0] - C[0], u2y = c2[1] - C[1], L2 = Math.hypot(u2x, u2y) || 1;
+        var s1 = (m.k === "int" && R > r1) ? -1 : 1;
+        var s2 = (m.k === "int" && R > r2) ? -1 : 1;
+        var T1 = [C[0] + s1 * u1x / L1 * R, C[1] + s1 * u1y / L1 * R];
+        var T2 = [C[0] + s2 * u2x / L2 * R, C[1] + s2 * u2y / L2 * R];
+        var midA = Math.atan2((T1[1] + T2[1]) / 2 - C[1], (T1[0] + T2[0]) / 2 - C[0]);
+        var mid = [C[0] + R * Math.cos(midA), C[1] + R * Math.sin(midA)];
+        cands.push({ C: C, R: R, T1: T1, T2: T2, mid: mid, mode: m.k, pts: arcVia(C, R, T1, T2, mid) });
+      });
+    });
+    if (!cands.length) { return null; }
+    if (hint) {
+      cands.sort(function (a, b) {
+        return Math.hypot(a.C[0] - hint[0], a.C[1] - hint[1]) - Math.hypot(b.C[0] - hint[0], b.C[1] - hint[1]);
+      });
+    }
+    return cands[0];
+  }
+  function isCircLike(e) { return e && (e.type === "circle" || e.role === "hole"); }
+  function filletTwoCircles(e1, e2, R, hint) {
+    if (!isCircLike(e1) || !isCircLike(e2)) { return null; }
+    var g = filletTwoCirclesGeom([e1.cx, e1.cy], e1.r, [e2.cx, e2.cy], e2.r, R, hint);
+    if (!g) { note("Those two circles have no fillet of R " + fmt(R, 1) + " mm."); return null; }
+    var skc = sketch();
+    var arc = mkEnt("poly", { pts: g.pts, closed: false, kind: "arc", meta: { cx: g.C[0], cy: g.C[1], r: g.R, mode: g.mode } });
+    if (skc) { skc.entities.push(arc); }
+    return arc;
+  }
+  /* outer outline of overlapping disks (star-convex about the cloud centroid).
+     This is how a student FILLET / TRIM / JOIN ends up: one closed profile. */
+  function disksOutline(disks, nPer) {
+    nPer = nPer || 56;
+    var pts = [];
+    disks.forEach(function (d, di) {
+      var i;
+      for (i = 0; i < nPer; i++) {
+        var a = i / nPer * 2 * Math.PI;
+        var p = [d.cx + d.r * Math.cos(a), d.cy + d.r * Math.sin(a)];
+        var buried = false, j;
+        for (j = 0; j < disks.length && !buried; j++) {
+          if (j === di) { continue; }
+          if (Math.hypot(p[0] - disks[j].cx, p[1] - disks[j].cy) < disks[j].r - 0.04) { buried = true; }
+        }
+        if (!buried) { pts.push(p); }
+      }
+    });
+    if (pts.length < 3) { return []; }
+    var cx = 0, cy = 0;
+    pts.forEach(function (p) { cx += p[0]; cy += p[1]; });
+    cx /= pts.length; cy /= pts.length;
+    pts.sort(function (a, b) { return Math.atan2(a[1] - cy, a[0] - cx) - Math.atan2(b[1] - cy, b[0] - cx); });
+    var out = [], k;
+    for (k = 0; k < pts.length; k++) {
+      var q = pts[k], prev = out[out.length - 1];
+      if (!prev || Math.hypot(q[0] - prev[0], q[1] - prev[1]) > 0.15) { out.push(q); }
+    }
+    return out;
+  }
+  /* common EXTERNAL tangent segments between two circles (AutoCAD LINE + TANGENT osnap). */
+  function externalTangents(c1, r1, c2, r2) {
+    var dx = c2[0] - c1[0], dy = c2[1] - c1[1], d = Math.hypot(dx, dy);
+    if (d < 1e-6) { return []; }
+    var out = [], sign;
+    for (sign = -1; sign <= 1; sign += 2) {
+      var ang = Math.atan2(dy, dx);
+      var phi = Math.asin(Math.max(-1, Math.min(1, (r2 - r1) / d)));
+      var a = ang + Math.PI / 2 + phi * (sign > 0 ? 1 : -1);
+      /* parallel-radius construction for equal-sense external tangents */
+      var nx = -dy / d * sign, ny = dx / d * sign;
+      if (Math.abs(r1 - r2) < 1e-6) {
+        out.push({ a: [c1[0] + nx * r1, c1[1] + ny * r1], b: [c2[0] + nx * r2, c2[1] + ny * r2] });
+      } else {
+        var v = (r1 - r2) / d;
+        if (Math.abs(v) >= 1) { continue; }
+        var h = Math.sqrt(Math.max(0, 1 - v * v));
+        var tx = dx / d * v - dy / d * h * sign, ty = dy / d * v + dx / d * h * sign;
+        out.push({ a: [c1[0] + tx * r1, c1[1] + ty * r1], b: [c2[0] + tx * r2, c2[1] + ty * r2] });
+      }
+    }
+    return out;
+  }
+
   /* AutoCAD FILLET of two LINE entities: trim both to the tangent points
      and insert a true circular arc of radius R. */
   function filletTwoLines(l1, l2, R) {
@@ -4297,7 +4403,17 @@
     var skc = sketch();
     if (!skc) { note("Pick a datum plane and start a sketch first."); return; }
     var lines = selEnts().filter(function (e) { return e.type === "line"; });
+    var circs = selEnts().filter(isCircLike);
     var size = kind === "chamfer2d" ? S.ui.chamferD : S.ui.filletR;
+    /* AutoCAD FILLET of two circles (the 100-exercise gasket plates). */
+    if (kind !== "chamfer2d" && circs.length >= 2) {
+      var arcC = filletTwoCircles(circs[0], circs[1], size);
+      if (!arcC) { return; }
+      pushHist(); renderAll(); skDirty();
+      if (window.__rgzcadBuild3d) { window.__rgzcadBuild3d(false); }
+      note("Fillet R " + fmt(size, 1) + " between the two selected circles — AutoCAD FILLET.");
+      return;
+    }
     /* AutoCAD: two selected lines → fillet/chamfer them now. */
     if (lines.length >= 2) {
       if (kind === "chamfer2d") {
@@ -4706,7 +4822,10 @@
     featureFromActiveSketch: featureFromActiveSketch, dressSelectedFeature: dressSelectedFeature,
     newDesignFresh: newDesignFresh, resumeDesign: resumeDesign,
     startSketchOnDatum: startSketchOnDatum, trimCorner: trimCorner, lineLineInt: lineLineInt, quickTrimAt: quickTrimAt,
-    filletCornerGeom: filletCornerGeom, filletTwoLines: filletTwoLines, filletPolyAll: filletPolyAll, filletPolyVertex: filletPolyVertex,
+    filletCornerGeom: filletCornerGeom, filletTwoLines: filletTwoLines, filletTwoCircles: filletTwoCircles, filletTwoCirclesGeom: filletTwoCirclesGeom,
+    disksOutline: disksOutline, externalTangents: externalTangents, circleIntersect: circleIntersect,
+    ngonPts: ngonPts, slotPts: slotPts, ellipsePts: ellipsePts,
+    filletPolyAll: filletPolyAll, filletPolyVertex: filletPolyVertex,
     arraySelection: arraySelection, mirrorCopySelection: mirrorCopySelection, explodeRectToPoly: explodeRectToPoly,
     entityCurvesOf: entityCurvesOf, curveCurveInt: curveCurveInt, hitCurve: hitCurve, arcChainPts: arcChainPts, circleToChain: circleToChain,
     loopsFromChains: loopsFromChains, chainSegments: chainSegments, segSegInt: segSegInt, crossingsWith: crossingsWith, holeHasMaterial: holeHasMaterial,
@@ -7216,9 +7335,9 @@ function tessellateShell(items, holes, t, L) {
         }).catch(function (e2) { btn.disabled = false; err.textContent = e2.message; });
       });
     }
-    md.hidden = false;
+    md.hidden = false; md.classList.add("on");
   }
-  function authHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-auth-modal]"); if (md) { md.hidden = true; } }
+  function authHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-auth-modal]"); if (md) { md.hidden = true; md.classList.remove("on"); } }
 
   function saveAccount() {
     if (!acct.token) { authShow("login"); U.note("Sign in first — then your design is stored on houmanrgz.ir."); return; }
@@ -7241,7 +7360,7 @@ function tessellateShell(items, holes, t, L) {
     var root = document.querySelector("[data-rgzcad]");
     var md = U.qs(root, "[data-designs-modal]"), body = U.qs(root, "[data-designs-body]");
     body.innerHTML = '<div class="rgzcad-empty">Loading…</div>';
-    md.hidden = false;
+    md.hidden = false; md.classList.add("on");
     apiAuthed("rgz_cad_my_designs", {}).then(function (d) {
       var rows = (d && d.designs) || [];
       if (!rows.length) { body.innerHTML = '<div class="rgzcad-empty">No saved designs yet — build something, then “Save to my account”.</div>'; return; }
@@ -7264,7 +7383,7 @@ function tessellateShell(items, holes, t, L) {
       });
     }).catch(function (e) { body.innerHTML = '<div class="rgzcad-empty">' + U.esc(e.message) + "</div>"; });
   }
-  function designsHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-designs-modal]"); if (md) { md.hidden = true; } }
+  function designsHide() { var md = U.qs(document.querySelector("[data-rgzcad]"), "[data-designs-modal]"); if (md) { md.hidden = true; md.classList.remove("on"); } }
 
   function loadServerDesign(id) {
     if (!acct.token) { acct.openId = id; authShow("login"); U.note("Sign in to open your saved design."); return; }
