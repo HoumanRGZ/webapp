@@ -1,3 +1,16 @@
+# RGZ 3D CAD Studio — UI polish + 45 classified plates (2026-08-19)
+
+## Layout
+- Studio fills the page (no leftover side gutters / unused height).
+- Tree, viewport and properties column stretch to the same row.
+- Example popup is a **vertical** list that fits the dialog width, with
+  Simple / Intermediate / Advanced tabs (15 plates each).
+
+## Gallery
+45 ready-made parts (15 per level), including the 12CAD book plates plus
+standard mechanical drills (washer, L-bracket, counterbore, yoke, …).
+
+
 # RGZ 3D CAD Studio — book plates + tool pass (2026-08-19)
 
 Read Houman's uploaded *100 CAD Exercises* (12CAD). The plates are

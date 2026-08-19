@@ -1,23 +1,23 @@
 /* RGZ 3D CAD Studio v3 — dark studio theme matched to the RGZ studios */
-.rgzcad{--rgzc-accent:#eb4e3c;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--bg:#f8fafc;--card:#fff;--navy:#0b1220;--navy2:#111a2e;--panel:#17203a;--panel2:#1d2a48;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--r:16px;--sh:0 12px 30px rgba(2,6,23,.10);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.55;max-width:1560px;margin:0 auto;padding:0 4px}
+.rgzcad{--rgzc-accent:#eb4e3c;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--bg:#f8fafc;--card:#fff;--navy:#0b1220;--navy2:#111a2e;--panel:#17203a;--panel2:#1d2a48;--ok:#16a34a;--warn:#d97706;--err:#dc2626;--r:16px;--sh:0 12px 30px rgba(2,6,23,.10);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Tahoma,Arial,sans-serif;color:var(--ink);line-height:1.45;max-width:none;width:100%;margin:0;padding:8px 10px 10px;min-height:calc(100vh - 24px);display:flex;flex-direction:column;box-sizing:border-box}
 .rgzcad *,.rgzcad *::before,.rgzcad *::after{box-sizing:border-box}
 .rgzcad h1,.rgzcad h2,.rgzcad h3{margin:0;line-height:1.2;letter-spacing:-.02em}
 .rgzcad button{font:inherit}
 .rgzcad [hidden]{display:none !important}
 
 /* ---------- header ---------- */
-.rgzcad-hero{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 12px;padding:14px 18px;border-radius:18px;color:#e5e7eb;background:radial-gradient(1100px 400px at 10% -40%,rgba(235,78,60,.30),transparent 60%),radial-gradient(900px 380px at 90% -30%,rgba(56,189,248,.16),transparent 55%),linear-gradient(160deg,var(--navy),var(--navy2));box-shadow:var(--sh)}
+.rgzcad-hero{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 8px;padding:10px 14px;border-radius:14px;flex:0 0 auto;color:#e5e7eb;background:radial-gradient(1100px 400px at 10% -40%,rgba(235,78,60,.30),transparent 60%),radial-gradient(900px 380px at 90% -30%,rgba(56,189,248,.16),transparent 55%),linear-gradient(160deg,var(--navy),var(--navy2));box-shadow:var(--sh)}
 .rgzcad-hero-l{display:flex;gap:12px;align-items:center;min-width:280px}
 .rgzcad-logo{width:38px;height:38px;color:var(--rgzc-accent);filter:drop-shadow(0 4px 10px rgba(235,78,60,.45))}
 .rgzcad-hero h1{font-size:clamp(1.15rem,2vw,1.4rem);color:#fff}
-.rgzcad-hero p{margin:2px 0 0;color:#94a3b8;font-size:.8rem;max-width:520px}
+.rgzcad-hero p{margin:2px 0 0;color:#94a3b8;font-size:.75rem;max-width:460px}
 .rgzcad-hero-r{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
 .rgzcad-unit{color:#7d8aa5;font-size:11px;font-weight:800;letter-spacing:.08em;border:1px solid rgba(148,163,184,.3);border-radius:999px;padding:6px 10px}
 .rgzcad-hero .rgzcad-btn.ghost{background:rgba(15,23,42,.55);border-color:rgba(148,163,184,.35);color:#e2e8f0;font-weight:700;text-decoration:none}
 .rgzcad-hero .rgzcad-btn.ghost:hover{border-color:var(--rgzc-accent);color:#fff}
 
 /* ---------- steps ---------- */
-.rgzcad-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 12px}
+.rgzcad-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 8px;flex:0 0 auto}
 .rgzcad-steps button{position:relative;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:11px 12px 11px 44px;cursor:pointer;box-shadow:0 2px 10px rgba(2,6,23,.06);font-weight:800;font-size:14px;color:var(--ink);transition:border-color .15s,box-shadow .15s,transform .1s}
 .rgzcad-steps button:not(:disabled):hover{transform:translateY(-1px);border-color:#cbd5e1}
 .rgzcad-steps button b,.rgzcad-steps button i{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:23px;height:23px;border-radius:50%;background:#eef2f7;color:var(--muted);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px}
@@ -27,10 +27,10 @@
 .rgzcad-steps button:disabled{opacity:.55;cursor:not-allowed}
 
 /* ---------- 3-column work layout — columns share the row height (no dead space) ---------- */
-.rgzcad-work{display:grid;grid-template-columns:236px minmax(0,1fr) 332px;gap:12px;align-items:stretch}
+.rgzcad-work{display:grid;grid-template-columns:220px minmax(0,1fr) 300px;gap:10px;align-items:stretch;flex:1 1 auto;min-height:0}
 
 /* ---------- specification tree ---------- */
-.rgzcad-tree{background:linear-gradient(170deg,var(--navy),#101a30);border:1px solid #1f2b46;border-radius:var(--r);color:#dbe4f3;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--sh);min-height:200px;height:100%}
+.rgzcad-tree{background:linear-gradient(170deg,var(--navy),#101a30);border:1px solid #1f2b46;border-radius:var(--r);color:#dbe4f3;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--sh);min-height:0;height:100%;align-self:stretch;width:100%}
 .rgzcad-treehead{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #1f2b46;font-weight:800;font-size:13.5px;color:#fff}
 .rgzcad-treehead b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rgzcad-treelist{display:flex;flex-direction:column;gap:2px;padding:8px;flex:1 1 auto;min-height:0;max-height:none;overflow:auto}
@@ -51,14 +51,14 @@
 .rgzcad-treeft button:hover{background:rgba(235,78,60,.2);border-color:rgba(235,78,60,.5);color:#fff}
 
 /* ---------- center stage ---------- */
-.rgzcad-center{position:relative;min-width:0}
-.rgzcad-viewport-wrap{position:relative;display:flex;flex-direction:column;min-width:0}
-.rgzcad-viewport{position:relative;height:clamp(480px,calc(100vh - 268px),900px);min-height:480px;border-radius:var(--r);overflow:hidden;background:#0e1526;border:1px solid #1e293b;box-shadow:var(--sh)}
+.rgzcad-center{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;height:100%;align-self:stretch}
+.rgzcad-viewport-wrap{position:relative;display:flex;flex-direction:column;min-width:0;flex:1 1 auto;min-height:0}
+.rgzcad-viewport{position:relative;flex:1 1 auto;height:auto;min-height:420px;max-height:none;border-radius:var(--r);overflow:hidden;background:#0e1526;border:1px solid #1e293b;box-shadow:var(--sh)}
 .rgzcad-viewport [data-sketch-canvas]{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair;background:#0e1526}
 .rgzcad-gl{position:absolute;inset:0}
 .rgzcad-gl canvas{display:block;outline:none}
 .rgzcad-sheet{position:absolute;inset:0;overflow:auto;background:#3b4254;display:none;padding:18px;z-index:8}
-.rgzcad-stagenote{display:block;margin:8px 4px 0;color:var(--muted);font-size:12.5px}
+.rgzcad-stagenote{display:block;margin:6px 2px 0;color:var(--muted);font-size:12px;flex:0 0 auto}
 
 /* bars */
 .rgzcad-bar{position:absolute;left:10px;top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:rgba(11,18,32,.88);border:1px solid rgba(148,163,184,.22);backdrop-filter:blur(6px);border-radius:16px;padding:6px 8px;max-width:calc(100% - 20px);z-index:6}
@@ -96,8 +96,8 @@
 .rgzcad-webglnote .rgzcad-btn{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.4);color:#e2e8f0}
 
 /* ---------- right panel ---------- */
-.rgzcad-panel{display:flex;flex-direction:column;gap:12px;min-width:0;height:100%;min-height:0;overflow-y:auto;padding-right:2px;scrollbar-gutter:stable}
-.rgzcad-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 2px 10px rgba(2,6,23,.06);padding:14px 16px}
+.rgzcad-panel{display:flex;flex-direction:column;gap:10px;min-width:0;width:100%;height:100%;min-height:0;overflow-y:auto;padding:0;scrollbar-gutter:stable;align-self:stretch;justify-content:flex-start}
+.rgzcad-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 2px 10px rgba(2,6,23,.06);padding:12px 14px;width:100%;box-sizing:border-box}
 .rgzcad-card h3{font-size:15px;margin-bottom:8px}
 .rgzcad-card h4.rgzcad-listhead{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 6px}
 .rgzcad-card .sub{color:var(--muted);font-size:12px;margin:-4px 0 10px}
@@ -156,7 +156,7 @@
 /* ---------- modals ---------- */
 .rgzcad-modal{position:fixed;inset:0;z-index:100000;background:rgba(2,6,23,.6);display:grid;place-items:center;padding:18px}
 .rgzcad-modal-card{background:#fff;max-width:440px;width:100%;max-height:86vh;border-radius:18px;overflow:auto;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4);position:relative;padding:20px 22px}
-.rgzcad-modal-card.wide{max-width:640px}
+.rgzcad-modal-card.wide{max-width:min(520px,100%)}
 .rgzcad-modal-card h3{font-size:1.12rem;color:var(--ink)}
 .rgzcad-modal-card .sub{color:var(--muted);font-size:12.5px;margin:4px 0 14px}
 .rgzcad-x{border:0;background:#f1f5f9;color:#334155;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;position:absolute;right:14px;top:14px;line-height:1;z-index:2}
@@ -200,11 +200,11 @@
 /* ---------- fullscreen ---------- */
 .rgzcad:fullscreen,.rgzcad.rgzcad-fs{max-width:none;margin:0;padding:14px;background:#0b1220;overflow:auto}
 .rgzcad.rgzcad-fs{position:fixed;inset:0;z-index:99998}
-.rgzcad:fullscreen .rgzcad-viewport,.rgzcad.rgzcad-fs .rgzcad-viewport{height:calc(100vh - 248px);min-height:420px;max-height:none}
+.rgzcad:fullscreen,.rgzcad.rgzcad-fs{min-height:100vh}.rgzcad:fullscreen .rgzcad-viewport,.rgzcad.rgzcad-fs .rgzcad-viewport{min-height:0;flex:1}
 
 /* ---------- responsive ---------- */
 @media (max-width:1200px){
-  .rgzcad-work{grid-template-columns:210px minmax(0,1fr) 300px}
+  .rgzcad-work{grid-template-columns:200px minmax(0,1fr) 280px}
 }
 @media (max-width:1020px){
   .rgzcad-work{grid-template-columns:1fr 1fr}
@@ -214,7 +214,7 @@
 }
 @media (max-width:620px){
   .rgzcad-work{grid-template-columns:1fr}
-  .rgzcad-viewport{min-height:380px;height:58vh}
+  .rgzcad-viewport{min-height:360px}
   .rgzcad-kpis{grid-template-columns:repeat(2,1fr)}
   .rgzcad-glbar .hint{display:none}
   .rgzcad-bar button i{display:none}
@@ -262,11 +262,17 @@
 .rgzcad-views .rgzcad-check{padding:4px 2px;font-size:12px}
 .rgzcad-btn.block{display:flex;width:100%}
 
-/* example-plate gallery (hydraulic-studio style cards) */
-.rgzcad-exgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px}
-.rgzcad-excard{text-align:left;border:1.5px solid var(--line);background:#fcfdff;border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px}
-.rgzcad-excard:hover{border-color:var(--rgzc-accent);box-shadow:0 0 0 3px rgba(235,78,60,.12)}
-.rgzcad-excard b{font-size:13px;color:var(--ink)}
-.rgzcad-excard small{color:var(--rgzc-accent);font-weight:700;font-size:10.5px}
-.rgzcad-excard span{color:var(--muted);font-size:11.5px;line-height:1.45}
-@media (max-width:620px){.rgzcad-exgrid{grid-template-columns:1fr}}
+/* example-plate gallery — vertical list, fitted to the popup */
+.rgzcad-modal.on{display:flex;position:fixed;inset:0;z-index:100000;border-radius:0;align-items:center;justify-content:center;padding:16px;background:rgba(5,9,17,.62)}
+.rgzcad-modal-card.rgzcad-exmodal{width:min(480px,100%);max-width:min(480px,100%);max-height:min(88vh,760px);padding:18px 16px 14px;overflow:hidden;display:flex;flex-direction:column}
+.rgzcad-ex-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 12px;flex:0 0 auto}
+.rgzcad-ex-tabs button{border:0;background:#f8fafc;color:var(--muted);padding:9px 6px;font-weight:800;font-size:13px;cursor:pointer}
+.rgzcad-ex-tabs button small{display:block;font-size:10px;font-weight:700;opacity:.75}
+.rgzcad-ex-tabs button.on{background:var(--rgzc-accent);color:#fff}
+.rgzcad-exlist{display:flex;flex-direction:column;gap:8px;width:100%;flex:1 1 auto;min-height:0;overflow:auto;padding-right:2px}
+.rgzcad-exrow{display:flex;flex-direction:column;align-items:stretch;gap:3px;width:100%;box-sizing:border-box;text-align:left;border:1.5px solid var(--line);background:#fcfdff;border-radius:12px;padding:10px 12px;cursor:pointer}
+.rgzcad-exrow:hover{border-color:var(--rgzc-accent);box-shadow:0 0 0 3px rgba(235,78,60,.12)}
+.rgzcad-exrow-t{display:flex;justify-content:space-between;align-items:baseline;gap:10px;width:100%}
+.rgzcad-exrow-t b{font-size:13px;color:var(--ink);min-width:0}
+.rgzcad-exrow-t i{font-style:normal;color:var(--rgzc-accent);font-weight:700;font-size:10.5px;white-space:nowrap;flex:0 0 auto}
+.rgzcad-exrow-d{color:var(--muted);font-size:11.5px;line-height:1.45;width:100%}

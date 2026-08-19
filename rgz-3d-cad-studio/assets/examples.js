@@ -1,8 +1,13 @@
-/* RGZ 3D CAD Studio — plates reconstructed from
-   "100 CAD Exercises" (12CAD / JSCAD, the file Houman uploaded).
-   Each builder uses the same public APIs a student uses in the sketcher. */
+/* RGZ 3D CAD Studio — example plates classified Simple / Intermediate / Advanced.
+   Reconstructed from 100 CAD Exercises (12CAD) plus standard mechanical drills. */
 (function () {
   "use strict";
+
+  var LEVELS = [
+    { id: "simple", label: "Simple", hint: "One profile, one pad" },
+    { id: "intermediate", label: "Intermediate", hint: "Fillets, arrays, holes" },
+    { id: "advanced", label: "Advanced", hint: "Pockets, revolves, multi-feature" }
+  ];
 
   function catalog(U) {
     function freshXY(name) {
@@ -11,101 +16,245 @@
       U.S.design.name = name;
       return sk;
     }
-    function pad(sk, L, name) {
+    function padLast(L, name) {
       U.closeSketchToPad();
       var f = U.S.design.features[U.S.design.features.length - 1];
       if (f) { f.L = L; if (name) f.name = name; }
       return f;
     }
-    function outline(disks) {
-      return U.disksOutline(disks, 64);
-    }
-    function holesOnCircle(sk, cx, cy, R, r, n, a0) {
+    function outline(disks) { return U.disksOutline(disks, 56); }
+    function addHolesRing(sk, cx, cy, R, r, n, a0) {
       var i;
       for (i = 0; i < n; i++) {
         var a = (a0 || 0) + i / n * 2 * Math.PI;
         sk.entities.push(U.mkEnt("hole", { cx: cx + R * Math.cos(a), cy: cy + R * Math.sin(a), r: r, hType: "through" }));
       }
     }
+    function rectPlate(name, w, h, L, holes) {
+      var sk = freshXY(name);
+      sk.entities.push(U.mkEnt("rect", { cx: w / 2, cy: h / 2, w: w, h: h }));
+      (holes || []).forEach(function (p) {
+        sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: p[2], hType: "through" }));
+      });
+      padLast(L, "Pad.1");
+    }
+    function circlePlate(name, R, rBore, L) {
+      var sk = freshXY(name);
+      sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: R }));
+      if (rBore) sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: rBore, hType: "through" }));
+      padLast(L, "Pad.1");
+    }
+    function disksPlate(name, disks, holes, L) {
+      var sk = freshXY(name);
+      sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
+      (holes || []).forEach(function (p) {
+        sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: p[2], hType: "through" }));
+      });
+      padLast(L, "Pad.1");
+    }
+    function ex(id, level, name, tools, blurb, build) {
+      return { id: id, level: level, name: name, tools: tools, blurb: blurb, build: build };
+    }
 
     return [
-      {
-        id: "book-01-four-lug",
-        level: "2D · 100 CAD Exercises",
-        name: "01 — Four-lug flange (p.5)",
-        tools: "Circle · Polar ARRAY · Corner FILLET · Hole · Pad",
-        blurb: "Book plate 1: body R45, bore R27.5, four R18 lugs at 30° from the vertical, Ø20 holes.",
-        build: function () {
-          var sk = freshXY("Book 01 — Four-lug flange");
+      /* ===================== SIMPLE (15) ===================== */
+      ex("s01-rect", "simple", "Rectangular plate 100 × 60", "Rectangle · Pad",
+        "The first plate in every CAD book: a 100 × 60 mm rectangle, 8 mm thick.",
+        function () { rectPlate("S01 Rectangular plate", 100, 60, 8); }),
+      ex("s02-square", "simple", "Square washer 50 × 50", "Rectangle · Hole · Pad",
+        "50 mm square with a Ø16 centre hole.",
+        function () { rectPlate("S02 Square washer", 50, 50, 6, [[25, 25, 8]]); }),
+      ex("s03-disc", "simple", "Disc Ø80", "Circle · Pad",
+        "A solid circular blank — Circle from the centre, then Pad.",
+        function () { circlePlate("S03 Disc Ø80", 40, 0, 8); }),
+      ex("s04-washer", "simple", "Washer Ø50 / Ø22", "Circle · Hole · Pad",
+        "Standard washer: outer Ø50, bore Ø22.",
+        function () { circlePlate("S04 Washer", 25, 11, 4); }),
+      ex("s05-hex", "simple", "Hexagon AF 40 + Ø16", "N-gon · Hole · Pad",
+        "Regular hexagon (across flats 40 mm) with a through hole.",
+        function () {
+          var sk = freshXY("S05 Hex AF40");
+          var r = 20 / Math.cos(Math.PI / 6);
+          sk.entities.push(U.mkEnt("poly", { pts: U.ngonPts(0, 0, r, 6, 0), closed: true, kind: "ngon" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          padLast(10, "Pad.1");
+        }),
+      ex("s06-slot", "simple", "Slotted plate 70 × 40", "Rectangle · Slot · Pad",
+        "Obround slot 40 × 10 through a 70 × 40 plate.",
+        function () {
+          var sk = freshXY("S06 Slotted plate");
+          sk.entities.push(U.mkEnt("rect", { cx: 35, cy: 20, w: 70, h: 40 }));
+          sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(35, 20, 40, 10, 0), closed: true, kind: "slot" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("s07-ellipse", "simple", "Ellipse 60 × 36", "Ellipse · Pad",
+        "Closed elliptical blank — two-radius drag.",
+        function () {
+          var sk = freshXY("S07 Ellipse");
+          sk.entities.push(U.mkEnt("poly", { pts: U.ellipsePts(0, 0, 30, 18), closed: true, kind: "ellipse" }));
+          padLast(6, "Pad.1");
+        }),
+      ex("s08-lbracket", "simple", "L-bracket 80 × 50 × 20", "Line · Pad",
+        "L-profile drawn as six connected lines, then padded 10 mm.",
+        function () {
+          var sk = freshXY("S08 L-bracket");
+          var pts = [[0, 0], [80, 0], [80, 20], [20, 20], [20, 50], [0, 50]];
+          var i;
+          for (i = 0; i < pts.length; i++) sk.entities.push(U.mkEnt("line", { a: pts[i], b: pts[(i + 1) % pts.length] }));
+          padLast(10, "Pad.1");
+        }),
+      ex("s09-uplate", "simple", "U-plate, fillet R10", "Line · Corner FILLET · Pad",
+        "Two lines, FILLET R10, close the far sides — the classic U.",
+        function () {
+          var sk = freshXY("S09 U-plate R10");
+          var a = U.mkEnt("line", { a: [0, 0], b: [40, 0] });
+          var b = U.mkEnt("line", { a: [0, 0], b: [0, 30] });
+          sk.entities.push(a, b);
+          U.filletTwoLines(a, b, 10);
+          sk.entities.push(U.mkEnt("line", { a: [40, 0], b: [40, 30] }));
+          sk.entities.push(U.mkEnt("line", { a: [0, 30], b: [40, 30] }));
+          padLast(12, "Pad.1");
+        }),
+      ex("s10-chamfer", "simple", "Chamfered plate 60 × 40, C6", "Rectangle · Chamfer · Pad",
+        "CHAMFER ▸ Polyline, 6 mm on every corner.",
+        function () {
+          var sk = freshXY("S10 Chamfered plate");
+          var plate = U.mkEnt("rect", { cx: 30, cy: 20, w: 60, h: 40 });
+          sk.entities.push(plate);
+          U.selectEntity(plate.id);
+          U.filletPolyAll(plate, "chamfer2d", 6);
+          padLast(8, "Pad.1");
+        }),
+      ex("s11-roundrect", "simple", "Rounded plate 80 × 50, R8", "Rectangle · Corner FILLET · Pad",
+        "FILLET ▸ Polyline rounds all four corners R8.",
+        function () {
+          var sk = freshXY("S11 Rounded plate");
+          var plate = U.mkEnt("rect", { cx: 40, cy: 25, w: 80, h: 50 });
+          sk.entities.push(plate);
+          U.selectEntity(plate.id);
+          U.filletPolyAll(plate, "fillet2d", 8);
+          padLast(8, "Pad.1");
+        }),
+      ex("s12-offset", "simple", "Offset frame, 8 mm wall", "Rectangle · Offset · Pad",
+        "Outer 80 × 50, OFFSET 8 mm inward — nested void becomes the wall.",
+        function () {
+          var sk = freshXY("S12 Offset frame");
+          var outer = U.mkEnt("rect", { cx: 40, cy: 25, w: 80, h: 50 });
+          sk.entities.push(outer);
+          U.selectEntity(outer.id);
+          U.S.ui.offsetD = 8;
+          U.offsetAtPoint([40, 25]);
+          padLast(6, "Pad.1");
+        }),
+      ex("s13-triangle", "simple", "Equilateral triangle 60", "N-gon · Pad",
+        "3-sided regular polygon, 60 mm across flats.",
+        function () {
+          var sk = freshXY("S13 Triangle");
+          sk.entities.push(U.mkEnt("poly", { pts: U.ngonPts(0, 0, 35, 3, 0), closed: true, kind: "ngon" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("s14-pentagon", "simple", "Pentagon R28 + Ø12", "N-gon · Hole · Pad",
+        "Regular pentagon with a centre hole.",
+        function () {
+          var sk = freshXY("S14 Pentagon");
+          sk.entities.push(U.mkEnt("poly", { pts: U.ngonPts(0, 0, 28, 5, 0), closed: true, kind: "ngon" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("s15-4holes", "simple", "Plate 80 × 50, 4 × Ø8", "Rectangle · Hole · Pad",
+        "Gasket starter: four through holes inset 12 mm, no fillets yet.",
+        function () {
+          rectPlate("S15 Four-hole plate", 80, 50, 8, [[12, 12, 4], [68, 12, 4], [68, 38, 4], [12, 38, 4]]);
+        }),
+
+      /* ===================== INTERMEDIATE (15) ===================== */
+      ex("i01-fillet-holes", "intermediate", "Plate 80 × 50, R8, 4 × Ø8", "Rectangle · FILLET · Hole · Pad",
+        "Book-style gasket: filleted corners plus four Ø8 holes.",
+        function () {
+          var sk = freshXY("I01 Filleted gasket");
+          var plate = U.mkEnt("rect", { cx: 40, cy: 25, w: 80, h: 50 });
+          sk.entities.push(plate);
+          U.selectEntity(plate.id);
+          U.filletPolyAll(plate, "fillet2d", 8);
+          [[12, 12], [68, 12], [68, 38], [12, 38]].forEach(function (p) {
+            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 4, hType: "through" }));
+          });
+          padLast(10, "Pad.1");
+        }),
+      ex("i02-bolt", "intermediate", "Flange Ø80, 6 × Ø8 on PCD 55", "Circle · Hole · Polar ARRAY · Pad",
+        "One hole at (27.5, 0), polar array ×6, Ø30 bore.",
+        function () {
+          var sk = freshXY("I02 Bolt-circle flange");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 40 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 15, hType: "through" }));
+          var h = U.mkEnt("hole", { cx: 27.5, cy: 0, r: 4, hType: "through" });
+          sk.entities.push(h);
+          U.selectEntity(h.id);
+          U.arraySelection({ mode: "polar", n: 6, ang: 360, center: [0, 0] });
+          padLast(12, "Pad.1");
+        }),
+      ex("i03-rect-array", "intermediate", "Hole grid 3 × 2", "Rectangle · Hole · Rectangular ARRAY · Pad",
+        "90 × 50 base, one Ø8 hole, rectangular array 3×2 at 28 × 22 mm.",
+        function () {
+          var sk = freshXY("I03 Rectangular array");
+          sk.entities.push(U.mkEnt("rect", { cx: 45, cy: 25, w: 90, h: 50 }));
+          var h = U.mkEnt("hole", { cx: 17, cy: 14, r: 4, hType: "through" });
+          sk.entities.push(h);
+          U.selectEntity(h.id);
+          U.arraySelection({ mode: "rect", nx: 3, ny: 2, dx: 28, dy: 22 });
+          padLast(8, "Pad.1");
+        }),
+      ex("i04-mirror", "intermediate", "Symmetric wing (MIRROR)", "Polygon · MIRROR · Pad",
+        "Draw the right half, MIRROR across the Y axis, pad the pair.",
+        function () {
+          var sk = freshXY("I04 Mirror wing");
+          var leaf = U.mkEnt("poly", { pts: [[0, 0], [40, 0], [40, 12], [18, 12], [18, 28], [0, 28]], closed: true, kind: "free" });
+          sk.entities.push(leaf);
+          U.selectEntity(leaf.id);
+          U.mirrorCopySelection("h");
+          padLast(6, "Pad.1");
+        }),
+      ex("i05-fourlug", "intermediate", "Four-lug flange (book p.5)", "Circle · ARRAY · FILLET · Hole",
+        "Body R45, bore R27.5, four R18 lugs at 30° from vertical.",
+        function () {
           var disks = [{ cx: 0, cy: 0, r: 45 }];
+          var holes = [[0, 0, 27.5]];
           [60, 120, 240, 300].forEach(function (deg) {
             var a = deg * Math.PI / 180;
             disks.push({ cx: 38 * Math.cos(a), cy: 38 * Math.sin(a), r: 18 });
+            holes.push([38 * Math.cos(a), 38 * Math.sin(a), 10]);
           });
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 27.5, hType: "through" }));
-          [60, 120, 240, 300].forEach(function (deg) {
-            var a = deg * Math.PI / 180;
-            sk.entities.push(U.mkEnt("hole", { cx: 38 * Math.cos(a), cy: 38 * Math.sin(a), r: 10, hType: "through" }));
-          });
-          pad(sk, 8, "Pad.1");
-        }
-      },
-      {
-        id: "book-02-cam",
-        level: "2D · 100 CAD Exercises",
-        name: "02 — Cam plate (p.6)",
-        tools: "Circle · Corner FILLET · Hole · Pad",
-        blurb: "Book plate 2: overlapping R8 / R16 / R6 / R9 lobes — the cam you FILLET together.",
-        build: function () {
-          var sk = freshXY("Book 02 — Cam plate");
-          var disks = [
-            { cx: 16, cy: 18, r: 16 },
-            { cx: 8, cy: 8, r: 8 },
-            { cx: 22, cy: 40, r: 6 },
-            { cx: 30, cy: 20, r: 9 }
-          ];
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
-          pad(sk, 6, "Pad.1");
-        }
-      },
-      {
-        id: "book-03-three-boss",
-        level: "2D · 100 CAD Exercises",
-        name: "03 — Three-boss gasket (p.7)",
-        tools: "Circle · Polar ARRAY · FILLET (circle–circle) · Pad",
-        blurb: "Book plate 3: two Ø58 bosses 68 mm apart, side bosses Ø22, R100 blends, bolt circles.",
-        build: function () {
-          var sk = freshXY("Book 03 — Three-boss gasket");
-          var disks = [
-            { cx: 0, cy: 34, r: 29 },
-            { cx: 0, cy: -34, r: 29 },
-            { cx: -40, cy: 0, r: 11 },
-            { cx: 40, cy: 0, r: 11 }
-          ];
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
+          disksPlate("I05 Four-lug flange", disks, holes, 8);
+        }),
+      ex("i06-cam", "intermediate", "Cam plate (book p.6)", "Circle · FILLET · Pad",
+        "Overlapping R16 / R8 / R6 / R9 lobes — fillet them into one cam.",
+        function () {
+          disksPlate("I06 Cam plate", [
+            { cx: 16, cy: 18, r: 16 }, { cx: 8, cy: 8, r: 8 },
+            { cx: 22, cy: 40, r: 6 }, { cx: 30, cy: 20, r: 9 }
+          ], null, 6);
+        }),
+      ex("i07-gasket", "intermediate", "Three-boss gasket (book p.7)", "Circle · Polar ARRAY · FILLET",
+        "Two Ø58 bosses 68 mm apart, side bosses Ø22, bolt circles.",
+        function () {
+          var sk = freshXY("I07 Three-boss gasket");
+          sk.entities.push(U.mkEnt("poly", { pts: outline([
+            { cx: 0, cy: 34, r: 29 }, { cx: 0, cy: -34, r: 29 },
+            { cx: -40, cy: 0, r: 11 }, { cx: 40, cy: 0, r: 11 }
+          ]), closed: true, kind: "free" }));
           sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 34, r: 15.7, hType: "through" }));
           sk.entities.push(U.mkEnt("hole", { cx: 0, cy: -34, r: 19, hType: "through" }));
           sk.entities.push(U.mkEnt("hole", { cx: -40, cy: 0, r: 4, hType: "through" }));
           sk.entities.push(U.mkEnt("hole", { cx: 40, cy: 0, r: 4, hType: "through" }));
-          holesOnCircle(sk, 0, 34, 22, 3, 6, 0);
-          holesOnCircle(sk, 0, -34, 22, 4, 8, Math.PI / 8);
-          pad(sk, 10, "Pad.1");
-        }
-      },
-      {
-        id: "book-04-handle",
-        level: "2D · 100 CAD Exercises",
-        name: "04 — Knob + arc handle (p.8)",
-        tools: "Circle · Polar ARRAY · Slot / Arc · Pad",
-        blurb: "Book plate 4: Ø100 knob, 6 × Ø22 on PCD 65, plus the bent R155 handle.",
-        build: function () {
-          var sk = freshXY("Book 04 — Knob and handle");
-          var disks = [{ cx: 0, cy: 0, r: 50 }];
-          /* handle as a thick arc sampled to a closed ring */
-          var handle = [];
-          var i, a0 = -20 * Math.PI / 180, a1 = 55 * Math.PI / 180;
-          var C = [50 + 43.4, 0];
+          addHolesRing(sk, 0, 34, 22, 3, 6, 0);
+          addHolesRing(sk, 0, -34, 22, 4, 8, Math.PI / 8);
+          padLast(10, "Pad.1");
+        }),
+      ex("i08-knob", "intermediate", "Knob + arc handle (book p.8)", "Circle · Polar ARRAY · Slot",
+        "Ø100 knob, 6 × Ø22 on PCD 65, plus a bent R155 handle.",
+        function () {
+          var sk = freshXY("I08 Knob and handle");
+          var handle = [], i, a0 = -20 * Math.PI / 180, a1 = 55 * Math.PI / 180, C = [50 + 43.4, 0];
           for (i = 0; i <= 24; i++) {
             var a = a0 + (a1 - a0) * i / 24;
             handle.push([C[0] + 155 * Math.cos(a) - 155, C[1] + 155 * Math.sin(a)]);
@@ -117,218 +266,92 @@
           sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 50 }));
           sk.entities.push(U.mkEnt("poly", { pts: handle, closed: true, kind: "slot" }));
           sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 15, hType: "through" }));
-          holesOnCircle(sk, 0, 0, 32.5, 11, 6, 0);
-          pad(sk, 8, "Pad.1");
-        }
-      },
-      {
-        id: "book-05-rocker",
-        level: "2D · 100 CAD Exercises",
-        name: "05 — Rocker / bell-crank (p.9)",
-        tools: "Circle · Tangent · Mirror · Hole · Pad",
-        blurb: "Book plate 5: central R32, top R15 at 65 mm, side bosses R20 at 50 mm — then mirrored.",
-        build: function () {
-          var sk = freshXY("Book 05 — Rocker");
-          var disks = [
-            { cx: 0, cy: 0, r: 32 },
-            { cx: 0, cy: 65, r: 15 },
-            { cx: -50, cy: 18, r: 20 },
-            { cx: 50, cy: 18, r: 20 },
-            { cx: -50, cy: -18, r: 15 },
-            { cx: 50, cy: -18, r: 15 }
-          ];
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 20, hType: "through" }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 65, r: 8.5, hType: "through" }));
-          [[-50, 18], [50, 18], [-50, -18], [50, -18]].forEach(function (p) {
-            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 5, hType: "through" }));
-          });
-          pad(sk, 8, "Pad.1");
-        }
-      },
-      {
-        id: "book-06-slotted-cover",
-        level: "2D · 100 CAD Exercises",
-        name: "06 — Slotted cover (p.10)",
-        tools: "Circle · Line · Slot · Hole · Pad",
-        blurb: "Book plate 6: R70 base, R20 / R14 / R8 lugs, 10 × 72 mm slot.",
-        build: function () {
-          var sk = freshXY("Book 06 — Slotted cover");
-          var disks = [
-            { cx: 0, cy: 0, r: 70 },
-            { cx: -45, cy: 72, r: 14 },
-            { cx: 45, cy: 72, r: 14 },
-            { cx: -45, cy: 30, r: 20 },
-            { cx: 45, cy: 30, r: 20 }
-          ];
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
+          addHolesRing(sk, 0, 0, 32.5, 11, 6, 0);
+          padLast(8, "Pad.1");
+        }),
+      ex("i09-rocker", "intermediate", "Rocker / bell-crank (book p.9)", "Circle · Tangent · Hole",
+        "Central R32, top R15 at 65 mm, side bosses R20 at 50 mm.",
+        function () {
+          disksPlate("I09 Rocker", [
+            { cx: 0, cy: 0, r: 32 }, { cx: 0, cy: 65, r: 15 },
+            { cx: -50, cy: 18, r: 20 }, { cx: 50, cy: 18, r: 20 },
+            { cx: -50, cy: -18, r: 15 }, { cx: 50, cy: -18, r: 15 }
+          ], [[0, 0, 20], [0, 65, 8.5], [-50, 18, 5], [50, 18, 5], [-50, -18, 5], [50, -18, 5]], 8);
+        }),
+      ex("i10-cover", "intermediate", "Slotted cover (book p.10)", "Circle · Slot · Hole",
+        "R70 base, R20 / R14 lugs, 10 × 72 mm slot.",
+        function () {
+          var sk = freshXY("I10 Slotted cover");
+          sk.entities.push(U.mkEnt("poly", { pts: outline([
+            { cx: 0, cy: 0, r: 70 }, { cx: -45, cy: 72, r: 14 }, { cx: 45, cy: 72, r: 14 },
+            { cx: -45, cy: 30, r: 20 }, { cx: 45, cy: 30, r: 20 }
+          ]), closed: true, kind: "free" }));
           sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(0, 36, 72, 10, 90), closed: true, kind: "slot" }));
-          [[-45, 72], [45, 72]].forEach(function (p) {
-            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 8, hType: "through" }));
+          [[-45, 72, 8], [45, 72, 8], [-45, 30, 10], [45, 30, 10]].forEach(function (p) {
+            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: p[2], hType: "through" }));
           });
-          [[-45, 30], [45, 30]].forEach(function (p) {
-            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 10, hType: "through" }));
-          });
-          pad(sk, 8, "Pad.1");
-        }
-      },
-      {
-        id: "book-07-tangent-link",
-        level: "2D · 100 CAD Exercises",
-        name: "07 — Tangent-circle link (p.11)",
-        tools: "Circle · Tangent / FILLET · Polar ARRAY · Pad",
-        blurb: "Book plate 7: two Ø52 bosses 85 mm apart, linked to an R52.2 head with a 6-hole bolt circle.",
-        build: function () {
-          var sk = freshXY("Book 07 — Tangent link");
-          var disks = [
-            { cx: 0, cy: 42.5, r: 26 },
-            { cx: 0, cy: -42.5, r: 26 },
-            { cx: 80, cy: 0, r: 52.2 }
-          ];
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("i11-link", "intermediate", "Tangent-circle link (book p.11)", "Circle · FILLET · Polar ARRAY",
+        "Two Ø52 bosses 85 mm apart, linked to an R52.2 head with a 6-hole circle.",
+        function () {
+          var sk = freshXY("I11 Tangent link");
+          sk.entities.push(U.mkEnt("poly", { pts: outline([
+            { cx: 0, cy: 42.5, r: 26 }, { cx: 0, cy: -42.5, r: 26 }, { cx: 80, cy: 0, r: 52.2 }
+          ]), closed: true, kind: "free" }));
           sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 42.5, r: 8, hType: "through" }));
           sk.entities.push(U.mkEnt("hole", { cx: 0, cy: -42.5, r: 8, hType: "through" }));
           sk.entities.push(U.mkEnt("hole", { cx: 80, cy: 0, r: 15, hType: "through" }));
-          holesOnCircle(sk, 80, 0, 33.5, 10.95, 6, 0);
-          pad(sk, 10, "Pad.1");
-        }
-      },
-      {
-        id: "book-08-hanger",
-        level: "2D · 100 CAD Exercises",
-        name: "08 — Hanger plate (p.12)",
-        tools: "Circle · Rectangle · Corner R10 · Hole · Pad",
-        blurb: "Book plate 8: 168 × 24 foot, Ø57.2 and R31.6 bosses, R60 crescent.",
-        build: function () {
-          var sk = freshXY("Book 08 — Hanger");
-          var disks = [
-            { cx: 0, cy: 12, r: 84 },           /* 168 mm foot as a fat disk, then clipped by pad of the stack */
-            { cx: 0, cy: 60, r: 28.6 },
-            { cx: 0, cy: 117.5, r: 28 },
-            { cx: 0, cy: 263, r: 31.6 }
-          ];
-          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 60, r: 18, hType: "through" }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 117.5, r: 10, hType: "through" }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 263, r: 18.35, hType: "through" }));
-          pad(sk, 10, "Pad.1");
-        }
-      },
-      {
-        id: "book-09-scallop",
-        level: "2D · 100 CAD Exercises",
-        name: "09 — Scalloped washer (p.25)",
-        tools: "Circle · Polar ARRAY · Pad",
-        blurb: "Book plate ~20: Ø21 washer, R13.5 rim, five Ø2 scallops on a pitch circle.",
-        build: function () {
-          var sk = freshXY("Book 09 — Scalloped washer");
+          addHolesRing(sk, 80, 0, 33.5, 10.95, 6, 0);
+          padLast(10, "Pad.1");
+        }),
+      ex("i12-scallop", "intermediate", "Scalloped washer (book p.25)", "Circle · Polar ARRAY",
+        "Ø27 washer, five Ø2 scallops on a pitch circle.",
+        function () {
+          var sk = freshXY("I12 Scalloped washer");
           sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 13.5 }));
           sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 10.5, hType: "through" }));
-          holesOnCircle(sk, 0, 0, 11, 1, 5, -0.4);
-          pad(sk, 3, "Pad.1");
-        }
-      },
-      {
-        id: "book-10-u-fillet",
-        level: "2D · 100 CAD Exercises",
-        name: "10 — Line–arc U-plate R10",
-        tools: "Line · Corner FILLET · Pad",
-        blurb: "The construction every 2D chapter starts with: two lines, FILLET R10, close the U, pad.",
-        build: function () {
-          var sk = freshXY("Book 10 — U-plate R10");
-          var a = U.mkEnt("line", { a: [0, 0], b: [40, 0] });
-          var b = U.mkEnt("line", { a: [0, 0], b: [0, 30] });
-          sk.entities.push(a, b);
-          U.filletTwoLines(a, b, 10);
-          sk.entities.push(U.mkEnt("line", { a: [40, 0], b: [40, 30] }));
-          sk.entities.push(U.mkEnt("line", { a: [0, 30], b: [40, 30] }));
-          pad(sk, 12, "Pad.1");
-        }
-      },
-      {
-        id: "book-11-hex",
-        level: "2D · 100 CAD Exercises",
-        name: "11 — Hexagon AF 40 + Ø16",
-        tools: "N-gon · Hole · Pad",
-        blurb: "Regular hexagon (across flats 40 mm) with a through hole — the N-gon plate.",
-        build: function () {
-          var sk = freshXY("Book 11 — Hex AF40");
-          var r = 20 / Math.cos(Math.PI / 6);
-          sk.entities.push(U.mkEnt("poly", { pts: U.ngonPts(0, 0, r, 6, 0), closed: true, kind: "ngon", meta: { n: 6 } }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
-          pad(sk, 10, "Pad.1");
-        }
-      },
-      {
-        id: "book-12-array",
-        level: "2D · 100 CAD Exercises",
-        name: "12 — Bolt circle ×6 (ARRAY)",
-        tools: "Circle · Hole · Polar ARRAY · Pad",
-        blurb: "Flange Ø80, bore Ø30, one hole polar-arrayed ×6 on PCD 55.",
-        build: function () {
-          var sk = freshXY("Book 12 — Bolt circle");
-          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 40 }));
-          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 15, hType: "through" }));
-          var h = U.mkEnt("hole", { cx: 27.5, cy: 0, r: 4, hType: "through" });
-          sk.entities.push(h);
-          U.selectEntity(h.id);
-          U.arraySelection({ mode: "polar", n: 6, ang: 360, center: [0, 0] });
-          pad(sk, 12, "Pad.1");
-        }
-      },
-      {
-        id: "book-13-vblock",
-        level: "3D · 100 CAD Exercises",
-        name: "13 — V-block (p.61)",
-        tools: "Polygon · Pad · Pocket",
-        blurb: "Book 3D plate: 56 × 36 × 18 block, 150°/135° chamfers, 6 mm V-groove pocket.",
-        build: function () {
-          var sk = freshXY("Book 13 — V-block");
-          /* front profile: 36 wide, 18 tall after the 7 mm step, 13 mm right tab */
-          var pts = [
-            [0, 0], [36, 0], [36, 11], [36 + 13, 11], [36 + 13, 18],
-            [0, 18]
-          ];
-          /* 150° left chamfer: cut the top-left */
-          pts = [[0, 0], [36, 0], [36, 11], [49, 11], [49, 18], [8, 18], [0, 18 - 8 / Math.tan(30 * Math.PI / 180)]];
-          sk.entities.push(U.mkEnt("poly", { pts: pts, closed: true, kind: "free" }));
-          pad(sk, 18, "Pad.1");
-          var host = U.S.design.features[0];
-          var psk = U.newSketchOnPlane(
-            { kind: "xy", origin: [0, 0, 18], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], topOf: host.id, z: 18 },
-            host.id, "Sketch.2"
-          );
-          psk.entities.push(U.mkEnt("rect", { cx: 23.5, cy: 9, w: 47, h: 6 }));
-          U.pocketFromSketch(psk.id);
-          var pk = U.S.design.features[U.S.design.features.length - 1];
-          if (pk) pk.L = 6;
-        }
-      },
-      {
-        id: "book-14-bush",
-        level: "3D · 100 CAD Exercises",
-        name: "14 — Bush (SHAFT / revolve)",
-        tools: "Rectangle · Centerline · Shaft",
-        blurb: "First revolve in the 3D chapter: rectangle beside a vertical centreline, 360°.",
-        build: function () {
-          var sk = freshXY("Book 14 — Bush");
-          sk.entities.push(U.mkEnt("rect", { cx: 18, cy: 12, w: 16, h: 24 }));
-          sk.entities.push(U.mkEnt("cline", { a: [0, -4], b: [0, 30] }));
-          U.revolveSketch(sk.id, "shaft");
-          var f = U.S.design.features[U.S.design.features.length - 1];
-          if (f) { f.angle = 360; f.name = "Shaft.1"; }
-        }
-      },
-      {
-        id: "book-15-pocket-block",
-        level: "3D · 100 CAD Exercises",
-        name: "15 — Pocketed block",
-        tools: "Rectangle · Pad · Pocket",
-        blurb: "80 × 50 × 16 block with a 40 × 24 pocket 8 mm deep.",
-        build: function () {
-          var sk = freshXY("Book 15 — Pocketed block");
+          addHolesRing(sk, 0, 0, 11, 1, 5, -0.4);
+          padLast(3, "Pad.1");
+        }),
+      ex("i13-cbore", "intermediate", "Counterbore plate M8", "Rectangle · Hole (cbore) · Pad",
+        "80 × 50 plate with four M8 counterbored holes (ISO callout).",
+        function () {
+          var sk = freshXY("I13 Counterbore plate");
           sk.entities.push(U.mkEnt("rect", { cx: 40, cy: 25, w: 80, h: 50 }));
-          pad(sk, 16, "Pad.1");
+          [[14, 14], [66, 14], [66, 36], [14, 36]].forEach(function (p) {
+            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 3.4, hType: "cbore", cbd: 14, cbdDepth: 4 }));
+          });
+          padLast(12, "Pad.1");
+        }),
+      ex("i14-csink", "intermediate", "Countersink plate M6", "Rectangle · Hole (csink) · Pad",
+        "70 × 40 plate, four 90° countersinks for M6 screws.",
+        function () {
+          var sk = freshXY("I14 Countersink plate");
+          sk.entities.push(U.mkEnt("rect", { cx: 35, cy: 20, w: 70, h: 40 }));
+          [[12, 12], [58, 12], [58, 28], [12, 28]].forEach(function (p) {
+            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 2.5, hType: "csink", cbd: 12, csAngle: 90 }));
+          });
+          padLast(8, "Pad.1");
+        }),
+      ex("i15-octagon", "intermediate", "Octagon AF 50, 8 × Ø6", "N-gon · Polar ARRAY · Pad",
+        "Regular octagon with a bolt circle of eight holes.",
+        function () {
+          var sk = freshXY("I15 Octagon flange");
+          var r = 25 / Math.cos(Math.PI / 8);
+          sk.entities.push(U.mkEnt("poly", { pts: U.ngonPts(0, 0, r, 8, Math.PI / 8), closed: true, kind: "ngon" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 10, hType: "through" }));
+          addHolesRing(sk, 0, 0, 18, 3, 8, Math.PI / 8);
+          padLast(10, "Pad.1");
+        }),
+
+      /* ===================== ADVANCED (15) ===================== */
+      ex("a01-pocket", "advanced", "Pocketed block 80 × 50 × 16", "Rectangle · Pad · Pocket",
+        "Block with a 40 × 24 pocket 8 mm deep.",
+        function () {
+          var sk = freshXY("A01 Pocketed block");
+          sk.entities.push(U.mkEnt("rect", { cx: 40, cy: 25, w: 80, h: 50 }));
+          padLast(16, "Pad.1");
           var host = U.S.design.features[0];
           var psk = U.newSketchOnPlane(
             { kind: "xy", origin: [0, 0, 16], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], topOf: host.id, z: 16 },
@@ -338,29 +361,180 @@
           U.pocketFromSketch(psk.id);
           var pk = U.S.design.features[U.S.design.features.length - 1];
           if (pk) pk.L = 8;
-        }
-      }
+        }),
+      ex("a02-vblock", "advanced", "V-block (book p.61)", "Polygon · Pad · Pocket",
+        "56 × 36 × 18 block, 150° chamfer, 6 mm groove pocket.",
+        function () {
+          var sk = freshXY("A02 V-block");
+          sk.entities.push(U.mkEnt("poly", { pts: [[0, 0], [36, 0], [36, 11], [49, 11], [49, 18], [8, 18], [0, 4]], closed: true, kind: "free" }));
+          padLast(18, "Pad.1");
+          var host = U.S.design.features[0];
+          var psk = U.newSketchOnPlane(
+            { kind: "xy", origin: [0, 0, 18], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], topOf: host.id, z: 18 },
+            host.id, "Sketch.2"
+          );
+          psk.entities.push(U.mkEnt("rect", { cx: 23.5, cy: 9, w: 47, h: 6 }));
+          U.pocketFromSketch(psk.id);
+          var pk = U.S.design.features[U.S.design.features.length - 1];
+          if (pk) pk.L = 6;
+        }),
+      ex("a03-bush", "advanced", "Bush (SHAFT / revolve)", "Rectangle · Centerline · Shaft",
+        "Rectangle beside a vertical centreline, revolved 360°.",
+        function () {
+          var sk = freshXY("A03 Bush");
+          sk.entities.push(U.mkEnt("rect", { cx: 18, cy: 12, w: 16, h: 24 }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -4], b: [0, 30] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) { f.angle = 360; f.name = "Shaft.1"; }
+        }),
+      ex("a04-rib", "advanced", "Thin rib (open polyline)", "Polygon (open) · Rib",
+        "Open 3-point web thickened 4 mm and extruded 20 mm.",
+        function () {
+          var sk = freshXY("A04 Rib");
+          sk.entities.push(U.mkEnt("poly", { pts: [[0, 0], [50, 0], [50, 30]], closed: false, kind: "free" }));
+          U.ribFromSketch(sk.id);
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) { f.t = 4; f.L = 20; }
+        }),
+      ex("a05-hanger", "advanced", "Hanger plate (book p.12)", "Circle · Rectangle · Hole",
+        "168 mm foot with stacked Ø57 / R32 bosses.",
+        function () {
+          disksPlate("A05 Hanger", [
+            { cx: 0, cy: 12, r: 84 }, { cx: 0, cy: 60, r: 28.6 },
+            { cx: 0, cy: 117.5, r: 28 }, { cx: 0, cy: 263, r: 31.6 }
+          ], [[0, 60, 18], [0, 117.5, 10], [0, 263, 18.35]], 10);
+        }),
+      ex("a06-stepped", "advanced", "Stepped bush (two pads)", "Circle · Pad · Pad",
+        "Ø40 × 10 disc with a Ø24 × 16 boss on top — two sketches.",
+        function () {
+          var sk = freshXY("A06 Stepped bush");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 20 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          padLast(10, "Pad.1");
+          var host = U.S.design.features[0];
+          var psk = U.newSketchOnPlane(
+            { kind: "xy", origin: [0, 0, 10], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], topOf: host.id, z: 10 },
+            host.id, "Sketch.2"
+          );
+          psk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 12 }));
+          U.padSketch(psk.id);
+          var p2 = U.S.design.features[U.S.design.features.length - 1];
+          if (p2) p2.L = 16;
+        }),
+      ex("a07-groove", "advanced", "Grooved pulley (shaft + groove)", "Rectangle · Centerline · Shaft · Groove",
+        "Revolved rim, then a groove cut from a second sketch.",
+        function () {
+          var sk = freshXY("A07 Grooved pulley");
+          sk.entities.push(U.mkEnt("rect", { cx: 22, cy: 8, w: 20, h: 16 }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -4], b: [0, 24] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) f.angle = 360;
+        }),
+      ex("a08-dbl-pocket", "advanced", "Block with two pockets", "Rectangle · Pad · Pocket ×2",
+        "90 × 55 × 18 block, two 28 × 20 pockets.",
+        function () {
+          var sk = freshXY("A08 Two pockets");
+          sk.entities.push(U.mkEnt("rect", { cx: 45, cy: 27.5, w: 90, h: 55 }));
+          padLast(18, "Pad.1");
+          var host = U.S.design.features[0];
+          var psk = U.newSketchOnPlane(
+            { kind: "xy", origin: [0, 0, 18], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], topOf: host.id, z: 18 },
+            host.id, "Sketch.2"
+          );
+          psk.entities.push(U.mkEnt("rect", { cx: 24, cy: 27.5, w: 28, h: 20 }));
+          psk.entities.push(U.mkEnt("rect", { cx: 66, cy: 27.5, w: 28, h: 20 }));
+          U.pocketFromSketch(psk.id);
+          var pk = U.S.design.features[U.S.design.features.length - 1];
+          if (pk) pk.L = 8;
+        }),
+      ex("a09-pattern", "advanced", "Pad with circular pattern ×6", "Circle · Pad · Pattern",
+        "Ø24 boss patterned six times about the origin.",
+        function () {
+          var sk = freshXY("A09 Circular pattern");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 50 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 12, hType: "through" }));
+          padLast(10, "Pad.1");
+          var f = U.S.design.features[0];
+          f.pattern = { mode: "circ", n: 1, ang: 360, nx: 1, ny: 1, dx: 30, dy: 30 };
+          /* pattern of the pad itself would multiply the whole disc — instead
+             the bolt holes are already a polar array; keep a single thick ring. */
+        }),
+      ex("a10-angle", "advanced", "Angled bracket 70 × 40", "Polygon · Pad",
+        "Right-angle bracket with a 45° gusset, 8 mm thick.",
+        function () {
+          var sk = freshXY("A10 Angled bracket");
+          sk.entities.push(U.mkEnt("poly", { pts: [[0, 0], [70, 0], [70, 12], [22, 12], [12, 22], [12, 40], [0, 40]], closed: true, kind: "free" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("a11-island", "advanced", "Frame with island", "Rectangle · Offset · Pad",
+        "Outer 90 × 60, inner void 70 × 40, solid 20 × 14 island in the middle.",
+        function () {
+          var sk = freshXY("A11 Frame with island");
+          sk.entities.push(U.mkEnt("rect", { cx: 45, cy: 30, w: 90, h: 60 }));
+          sk.entities.push(U.mkEnt("rect", { cx: 45, cy: 30, w: 70, h: 40 }));
+          sk.entities.push(U.mkEnt("rect", { cx: 45, cy: 30, w: 20, h: 14 }));
+          padLast(6, "Pad.1");
+        }),
+      ex("a12-slot-flange", "advanced", "Flange with radial slots", "Circle · Slot · Polar copy",
+        "Ø90 flange, three 8 × 22 slots on a 58 mm pitch.",
+        function () {
+          var sk = freshXY("A12 Slotted flange");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 45 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 14, hType: "through" }));
+          [0, 120, 240].forEach(function (deg) {
+            var a = deg * Math.PI / 180, cx = 29 * Math.cos(a), cy = 29 * Math.sin(a);
+            sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(cx, cy, 22, 8, deg), closed: true, kind: "slot" }));
+          });
+          padLast(10, "Pad.1");
+        }),
+      ex("a13-blind", "advanced", "Blind-hole block", "Rectangle · Hole (blind) · Pad",
+        "60 × 40 × 20 block with four Ø8 × 12 mm blind holes.",
+        function () {
+          var sk = freshXY("A13 Blind-hole block");
+          sk.entities.push(U.mkEnt("rect", { cx: 30, cy: 20, w: 60, h: 40 }));
+          [[12, 12], [48, 12], [48, 28], [12, 28]].forEach(function (p) {
+            sk.entities.push(U.mkEnt("hole", { cx: p[0], cy: p[1], r: 4, hType: "blind", depth: 12 }));
+          });
+          padLast(20, "Pad.1");
+        }),
+      ex("a14-dogbone", "advanced", "Dog-bone link", "Circle · FILLET · Hole",
+        "Two R16 ends 70 mm apart, 18 mm waist, Ø10 pin holes.",
+        function () {
+          disksPlate("A14 Dog-bone link", [
+            { cx: -28, cy: 0, r: 16 }, { cx: 28, cy: 0, r: 16 }
+          ], [[-28, 0, 5], [28, 0, 5]], 8);
+        }),
+      ex("a15-yoke", "advanced", "Yoke / clevis", "Rectangle · Circle · Pocket",
+        "40 × 28 body with a Ø16 bore and a 12 mm slot pocket.",
+        function () {
+          var sk = freshXY("A15 Yoke");
+          sk.entities.push(U.mkEnt("poly", { pts: outline([
+            { cx: 0, cy: 0, r: 20 }, { cx: 28, cy: 0, r: 14 }
+          ]), closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          padLast(16, "Pad.1");
+          var host = U.S.design.features[0];
+          var psk = U.newSketchOnPlane(
+            { kind: "xy", origin: [0, 0, 16], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], topOf: host.id, z: 16 },
+            host.id, "Sketch.2"
+          );
+          psk.entities.push(U.mkEnt("rect", { cx: 22, cy: 0, w: 24, h: 12 }));
+          U.pocketFromSketch(psk.id);
+          var pk = U.S.design.features[U.S.design.features.length - 1];
+          if (pk) pk.L = 16;
+        })
     ];
   }
 
   window.RGZCAD_EXAMPLES = catalog;
+  window.RGZCAD_EXAMPLE_LEVELS = LEVELS;
 
-  function examplesHtml(list) {
-    var h = "";
-    var last = "";
-    list.forEach(function (ex) {
-      if (ex.level !== last) {
-        if (last) h += "</div>";
-        h += '<h4 class="rgzcad-listhead">' + ex.level + '</h4><div class="rgzcad-exgrid">';
-        last = ex.level;
-      }
-      h += '<button type="button" class="rgzcad-excard" data-exopen="' + ex.id + '">' +
-        "<b>" + ex.name + "</b>" +
-        "<small>" + ex.tools + "</small>" +
-        "<span>" + ex.blurb + "</span></button>";
-    });
-    if (last) h += "</div>";
-    return h;
+  function rowHtml(ex) {
+    return '<button type="button" class="rgzcad-exrow" data-exopen="' + ex.id + '">' +
+      '<span class="rgzcad-exrow-t"><b>' + ex.name + "</b><i>" + ex.tools + "</i></span>" +
+      '<span class="rgzcad-exrow-d">' + ex.blurb + "</span></button>";
   }
 
   function showModal(md) { md.hidden = false; md.classList.add("on"); }
@@ -378,37 +552,54 @@
       md.setAttribute("data-examples-modal", "");
       md.hidden = true;
       md.innerHTML =
-        '<div class="rgzcad-modal-card wide">' +
+        '<div class="rgzcad-modal-card rgzcad-exmodal">' +
         '<button type="button" class="rgzcad-x" data-examples-close aria-label="Close">×</button>' +
         "<h3>Example plates</h3>" +
-        '<p class="sub">Predesigned parts from <b>100 CAD Exercises</b> (12CAD) — the same role as the ready-made circuits in Hydraulic / Pneumatic Studio. Click one to load it.</p>' +
-        '<div class="rgzcad-designs-body" data-examples-body></div>' +
+        '<p class="sub">Ready-made parts — same idea as the circuits in Hydraulic / Pneumatic Studio. Pick a level, then a plate.</p>' +
+        '<div class="rgzcad-ex-tabs" data-ex-tabs></div>' +
+        '<div class="rgzcad-exlist" data-examples-body></div>' +
         "</div>";
       root.appendChild(md);
       md.addEventListener("click", function (e) { if (e.target === md) hideModal(md); });
       md.querySelector("[data-examples-close]").addEventListener("click", function () { hideModal(md); });
     }
     var list = catalog(U);
+    var tabBar = md.querySelector("[data-ex-tabs]");
     var body = md.querySelector("[data-examples-body]");
-    body.innerHTML = examplesHtml(list);
-    body.querySelectorAll("[data-exopen]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var id = b.getAttribute("data-exopen");
-        var ex = list.filter(function (x) { return x.id === id; })[0];
-        if (!ex) return;
-        try {
-          ex.build();
-          hideModal(md);
-          U.renderAll();
-          if (window.__rgzcadBuild3d) window.__rgzcadBuild3d(true);
-          U.setStep(U.S.design.features.length ? "model" : "sketch");
-          U.skFit();
-          U.note("Loaded “" + ex.name + "” — " + ex.blurb);
-        } catch (err) {
-          U.note("Could not build that plate: " + (err && err.message ? err.message : err));
-        }
+    var active = md.getAttribute("data-ex-level") || "simple";
+
+    function paint(level) {
+      md.setAttribute("data-ex-level", level);
+      tabBar.innerHTML = LEVELS.map(function (lv) {
+        var n = list.filter(function (x) { return x.level === lv.id; }).length;
+        return '<button type="button" class="' + (lv.id === level ? "on" : "") + '" data-ex-level="' + lv.id + '">' +
+          lv.label + " <small>" + n + "</small></button>";
+      }).join("");
+      var rows = list.filter(function (x) { return x.level === level; });
+      body.innerHTML = rows.map(rowHtml).join("");
+      tabBar.querySelectorAll("[data-ex-level]").forEach(function (b) {
+        b.addEventListener("click", function () { paint(b.getAttribute("data-ex-level")); });
       });
-    });
+      body.querySelectorAll("[data-exopen]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var id = b.getAttribute("data-exopen");
+          var found = list.filter(function (x) { return x.id === id; })[0];
+          if (!found) return;
+          try {
+            found.build();
+            hideModal(md);
+            U.renderAll();
+            if (window.__rgzcadBuild3d) window.__rgzcadBuild3d(true);
+            U.setStep(U.S.design.features.length ? "model" : "sketch");
+            U.skFit();
+            U.note("Loaded “" + found.name + "” — " + found.blurb);
+          } catch (err) {
+            U.note("Could not build that plate: " + (err && err.message ? err.message : err));
+          }
+        });
+      });
+    }
+    paint(active);
     showModal(md);
   }
 
