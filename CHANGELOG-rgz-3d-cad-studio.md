@@ -1,3 +1,16 @@
+# RGZ 3D CAD Studio — real Intermediate / Advanced parts (2026-08-19)
+
+All previous plates moved to **Simple** (45). New levels:
+
+- **Intermediate (15):** spur gear, 6-blade impeller, connecting rod, star
+  knob, heat sink, castle nut, crank disc, sprocket, Geneva cross, ratchet…
+- **Advanced (15):** 10-blade turbine rotor, thorn, barbed spike, propeller,
+  cooling fan, venturi nozzle, shrouded impeller, stator, turbofan, auger…
+
+New sketcher helpers: `airfoilPts` (NACA-style) and `rotatePts` so blades
+can be placed around a hub.
+
+
 # RGZ 3D CAD Studio — UI polish + 45 classified plates (2026-08-19)
 
 ## Layout

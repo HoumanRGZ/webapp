@@ -278,6 +278,30 @@
     for (i = 0; i < N; i++) { pts.push([cx + rx * Math.cos(i / N * 2 * Math.PI), cy + ry * Math.sin(i / N * 2 * Math.PI)]); }
     return pts;
   }
+  function rotatePts(pts, cx, cy, ang) {
+    var ca = Math.cos(ang), sa = Math.sin(ang);
+    return (pts || []).map(function (p) {
+      var dx = p[0] - cx, dy = p[1] - cy;
+      return [cx + dx * ca - dy * sa, cy + dx * sa + dy * ca];
+    });
+  }
+  /* NACA-style airfoil (closed). chord mm, t = max thickness as fraction (0.12 = 12%). */
+  function airfoilPts(chord, t, camber) {
+    chord = chord || 40; t = t == null ? 0.15 : t; camber = camber == null ? 0.04 : camber;
+    var n = 22, pts = [], i, x, yt, yc;
+    function thick(x) {
+      return 5 * t * (0.2969 * Math.sqrt(x) - 0.1260 * x - 0.3516 * x * x + 0.2843 * x * x * x - 0.1036 * x * x * x * x);
+    }
+    for (i = 0; i <= n; i++) {
+      x = i / n; yt = thick(x) * chord; yc = 4 * camber * x * (1 - x) * chord;
+      pts.push([x * chord, yc + yt]);
+    }
+    for (i = n - 1; i >= 1; i--) {
+      x = i / n; yt = thick(x) * chord; yc = 4 * camber * x * (1 - x) * chord;
+      pts.push([x * chord, yc - yt]);
+    }
+    return pts;
+  }
   function arc3Pts(p1, p2, p3) {
     /* arc through 3 points → many points along the arc */
     var d = 2 * (p1[0] * (p2[1] - p3[1]) + p2[0] * (p3[1] - p1[1]) + p3[0] * (p1[1] - p2[1]));
@@ -4824,7 +4848,7 @@
     startSketchOnDatum: startSketchOnDatum, trimCorner: trimCorner, lineLineInt: lineLineInt, quickTrimAt: quickTrimAt,
     filletCornerGeom: filletCornerGeom, filletTwoLines: filletTwoLines, filletTwoCircles: filletTwoCircles, filletTwoCirclesGeom: filletTwoCirclesGeom,
     disksOutline: disksOutline, externalTangents: externalTangents, circleIntersect: circleIntersect,
-    ngonPts: ngonPts, slotPts: slotPts, ellipsePts: ellipsePts,
+    ngonPts: ngonPts, slotPts: slotPts, ellipsePts: ellipsePts, rotatePts: rotatePts, airfoilPts: airfoilPts,
     filletPolyAll: filletPolyAll, filletPolyVertex: filletPolyVertex,
     arraySelection: arraySelection, mirrorCopySelection: mirrorCopySelection, explodeRectToPoly: explodeRectToPoly,
     entityCurvesOf: entityCurvesOf, curveCurveInt: curveCurveInt, hitCurve: hitCurve, arcChainPts: arcChainPts, circleToChain: circleToChain,

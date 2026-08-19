@@ -17,8 +17,8 @@ afterBoot(function () {
     const list = win.RGZCAD_EXAMPLES(U);
     const levels = { simple: 0, intermediate: 0, advanced: 0 };
     list.forEach(function (ex) { if (levels[ex.level] != null) levels[ex.level]++; });
-    expect(list.length >= 45, "at least 45 plates (" + list.length + ")");
-    expect(levels.simple >= 15, "simple ≥ 15 (" + levels.simple + ")");
+    expect(list.length >= 75, "at least 75 plates (" + list.length + ")");
+    expect(levels.simple >= 45, "simple ≥ 45 — all original plates (" + levels.simple + ")");
     expect(levels.intermediate >= 15, "intermediate ≥ 15 (" + levels.intermediate + ")");
     expect(levels.advanced >= 15, "advanced ≥ 15 (" + levels.advanced + ")");
     expect(!!doc.querySelector("[data-examples]"), "Example plates button in the header");
@@ -39,7 +39,7 @@ afterBoot(function () {
     });
 
     /* ISO drawing on a couple of representatives, not all 45 (too slow in jsdom) */
-    ["s01-rect", "i02-bolt", "a01-pocket"].forEach(function (id) {
+    ["s01-rect", "m01-gear", "x01-turbine", "x02-thorn"].forEach(function (id) {
       const ex = list.filter(function (x) { return x.id === id; })[0];
       if (!ex) { expect(false, id + " missing"); return; }
       ex.build();

@@ -4,9 +4,9 @@
   "use strict";
 
   var LEVELS = [
-    { id: "simple", label: "Simple", hint: "One profile, one pad" },
-    { id: "intermediate", label: "Intermediate", hint: "Fillets, arrays, holes" },
-    { id: "advanced", label: "Advanced", hint: "Pockets, revolves, multi-feature" }
+    { id: "simple", label: "Simple", hint: "Book plates & basic shapes" },
+    { id: "intermediate", label: "Intermediate", hint: "Gears, impellers, knobs" },
+    { id: "advanced", label: "Advanced", hint: "Turbine, thorn, propeller" }
   ];
 
   function catalog(U) {
@@ -168,7 +168,7 @@
         }),
 
       /* ===================== INTERMEDIATE (15) ===================== */
-      ex("i01-fillet-holes", "intermediate", "Plate 80 × 50, R8, 4 × Ø8", "Rectangle · FILLET · Hole · Pad",
+      ex("i01-fillet-holes", "simple", "Plate 80 × 50, R8, 4 × Ø8", "Rectangle · FILLET · Hole · Pad",
         "Book-style gasket: filleted corners plus four Ø8 holes.",
         function () {
           var sk = freshXY("I01 Filleted gasket");
@@ -181,7 +181,7 @@
           });
           padLast(10, "Pad.1");
         }),
-      ex("i02-bolt", "intermediate", "Flange Ø80, 6 × Ø8 on PCD 55", "Circle · Hole · Polar ARRAY · Pad",
+      ex("i02-bolt", "simple", "Flange Ø80, 6 × Ø8 on PCD 55", "Circle · Hole · Polar ARRAY · Pad",
         "One hole at (27.5, 0), polar array ×6, Ø30 bore.",
         function () {
           var sk = freshXY("I02 Bolt-circle flange");
@@ -193,7 +193,7 @@
           U.arraySelection({ mode: "polar", n: 6, ang: 360, center: [0, 0] });
           padLast(12, "Pad.1");
         }),
-      ex("i03-rect-array", "intermediate", "Hole grid 3 × 2", "Rectangle · Hole · Rectangular ARRAY · Pad",
+      ex("i03-rect-array", "simple", "Hole grid 3 × 2", "Rectangle · Hole · Rectangular ARRAY · Pad",
         "90 × 50 base, one Ø8 hole, rectangular array 3×2 at 28 × 22 mm.",
         function () {
           var sk = freshXY("I03 Rectangular array");
@@ -204,7 +204,7 @@
           U.arraySelection({ mode: "rect", nx: 3, ny: 2, dx: 28, dy: 22 });
           padLast(8, "Pad.1");
         }),
-      ex("i04-mirror", "intermediate", "Symmetric wing (MIRROR)", "Polygon · MIRROR · Pad",
+      ex("i04-mirror", "simple", "Mirrored half-plate", "Polygon · MIRROR · Pad",
         "Draw the right half, MIRROR across the Y axis, pad the pair.",
         function () {
           var sk = freshXY("I04 Mirror wing");
@@ -214,7 +214,7 @@
           U.mirrorCopySelection("h");
           padLast(6, "Pad.1");
         }),
-      ex("i05-fourlug", "intermediate", "Four-lug flange (book p.5)", "Circle · ARRAY · FILLET · Hole",
+      ex("i05-fourlug", "simple", "Four-lug flange (book p.5)", "Circle · ARRAY · FILLET · Hole",
         "Body R45, bore R27.5, four R18 lugs at 30° from vertical.",
         function () {
           var disks = [{ cx: 0, cy: 0, r: 45 }];
@@ -226,7 +226,7 @@
           });
           disksPlate("I05 Four-lug flange", disks, holes, 8);
         }),
-      ex("i06-cam", "intermediate", "Cam plate (book p.6)", "Circle · FILLET · Pad",
+      ex("i06-cam", "simple", "Cam plate (book p.6)", "Circle · FILLET · Pad",
         "Overlapping R16 / R8 / R6 / R9 lobes — fillet them into one cam.",
         function () {
           disksPlate("I06 Cam plate", [
@@ -234,7 +234,7 @@
             { cx: 22, cy: 40, r: 6 }, { cx: 30, cy: 20, r: 9 }
           ], null, 6);
         }),
-      ex("i07-gasket", "intermediate", "Three-boss gasket (book p.7)", "Circle · Polar ARRAY · FILLET",
+      ex("i07-gasket", "simple", "Three-boss gasket (book p.7)", "Circle · Polar ARRAY · FILLET",
         "Two Ø58 bosses 68 mm apart, side bosses Ø22, bolt circles.",
         function () {
           var sk = freshXY("I07 Three-boss gasket");
@@ -250,7 +250,7 @@
           addHolesRing(sk, 0, -34, 22, 4, 8, Math.PI / 8);
           padLast(10, "Pad.1");
         }),
-      ex("i08-knob", "intermediate", "Knob + arc handle (book p.8)", "Circle · Polar ARRAY · Slot",
+      ex("i08-knob", "simple", "Knob + arc handle (book p.8)", "Circle · Polar ARRAY · Slot",
         "Ø100 knob, 6 × Ø22 on PCD 65, plus a bent R155 handle.",
         function () {
           var sk = freshXY("I08 Knob and handle");
@@ -269,7 +269,7 @@
           addHolesRing(sk, 0, 0, 32.5, 11, 6, 0);
           padLast(8, "Pad.1");
         }),
-      ex("i09-rocker", "intermediate", "Rocker / bell-crank (book p.9)", "Circle · Tangent · Hole",
+      ex("i09-rocker", "simple", "Rocker / bell-crank (book p.9)", "Circle · Tangent · Hole",
         "Central R32, top R15 at 65 mm, side bosses R20 at 50 mm.",
         function () {
           disksPlate("I09 Rocker", [
@@ -278,7 +278,7 @@
             { cx: -50, cy: -18, r: 15 }, { cx: 50, cy: -18, r: 15 }
           ], [[0, 0, 20], [0, 65, 8.5], [-50, 18, 5], [50, 18, 5], [-50, -18, 5], [50, -18, 5]], 8);
         }),
-      ex("i10-cover", "intermediate", "Slotted cover (book p.10)", "Circle · Slot · Hole",
+      ex("i10-cover", "simple", "Slotted cover (book p.10)", "Circle · Slot · Hole",
         "R70 base, R20 / R14 lugs, 10 × 72 mm slot.",
         function () {
           var sk = freshXY("I10 Slotted cover");
@@ -292,7 +292,7 @@
           });
           padLast(8, "Pad.1");
         }),
-      ex("i11-link", "intermediate", "Tangent-circle link (book p.11)", "Circle · FILLET · Polar ARRAY",
+      ex("i11-link", "simple", "Tangent-circle link (book p.11)", "Circle · FILLET · Polar ARRAY",
         "Two Ø52 bosses 85 mm apart, linked to an R52.2 head with a 6-hole circle.",
         function () {
           var sk = freshXY("I11 Tangent link");
@@ -305,7 +305,7 @@
           addHolesRing(sk, 80, 0, 33.5, 10.95, 6, 0);
           padLast(10, "Pad.1");
         }),
-      ex("i12-scallop", "intermediate", "Scalloped washer (book p.25)", "Circle · Polar ARRAY",
+      ex("i12-scallop", "simple", "Scalloped washer (book p.25)", "Circle · Polar ARRAY",
         "Ø27 washer, five Ø2 scallops on a pitch circle.",
         function () {
           var sk = freshXY("I12 Scalloped washer");
@@ -314,7 +314,7 @@
           addHolesRing(sk, 0, 0, 11, 1, 5, -0.4);
           padLast(3, "Pad.1");
         }),
-      ex("i13-cbore", "intermediate", "Counterbore plate M8", "Rectangle · Hole (cbore) · Pad",
+      ex("i13-cbore", "simple", "Counterbore plate M8", "Rectangle · Hole (cbore) · Pad",
         "80 × 50 plate with four M8 counterbored holes (ISO callout).",
         function () {
           var sk = freshXY("I13 Counterbore plate");
@@ -324,7 +324,7 @@
           });
           padLast(12, "Pad.1");
         }),
-      ex("i14-csink", "intermediate", "Countersink plate M6", "Rectangle · Hole (csink) · Pad",
+      ex("i14-csink", "simple", "Countersink plate M6", "Rectangle · Hole (csink) · Pad",
         "70 × 40 plate, four 90° countersinks for M6 screws.",
         function () {
           var sk = freshXY("I14 Countersink plate");
@@ -334,7 +334,7 @@
           });
           padLast(8, "Pad.1");
         }),
-      ex("i15-octagon", "intermediate", "Octagon AF 50, 8 × Ø6", "N-gon · Polar ARRAY · Pad",
+      ex("i15-octagon", "simple", "Octagon AF 50, 8 × Ø6", "N-gon · Polar ARRAY · Pad",
         "Regular octagon with a bolt circle of eight holes.",
         function () {
           var sk = freshXY("I15 Octagon flange");
@@ -346,7 +346,7 @@
         }),
 
       /* ===================== ADVANCED (15) ===================== */
-      ex("a01-pocket", "advanced", "Pocketed block 80 × 50 × 16", "Rectangle · Pad · Pocket",
+      ex("a01-pocket", "simple", "Pocketed block 80 × 50 × 16", "Rectangle · Pad · Pocket",
         "Block with a 40 × 24 pocket 8 mm deep.",
         function () {
           var sk = freshXY("A01 Pocketed block");
@@ -362,7 +362,7 @@
           var pk = U.S.design.features[U.S.design.features.length - 1];
           if (pk) pk.L = 8;
         }),
-      ex("a02-vblock", "advanced", "V-block (book p.61)", "Polygon · Pad · Pocket",
+      ex("a02-vblock", "simple", "V-block (book p.61)", "Polygon · Pad · Pocket",
         "56 × 36 × 18 block, 150° chamfer, 6 mm groove pocket.",
         function () {
           var sk = freshXY("A02 V-block");
@@ -378,7 +378,7 @@
           var pk = U.S.design.features[U.S.design.features.length - 1];
           if (pk) pk.L = 6;
         }),
-      ex("a03-bush", "advanced", "Bush (SHAFT / revolve)", "Rectangle · Centerline · Shaft",
+      ex("a03-bush", "simple", "Bush (SHAFT / revolve)", "Rectangle · Centerline · Shaft",
         "Rectangle beside a vertical centreline, revolved 360°.",
         function () {
           var sk = freshXY("A03 Bush");
@@ -388,7 +388,7 @@
           var f = U.S.design.features[U.S.design.features.length - 1];
           if (f) { f.angle = 360; f.name = "Shaft.1"; }
         }),
-      ex("a04-rib", "advanced", "Thin rib (open polyline)", "Polygon (open) · Rib",
+      ex("a04-rib", "simple", "Thin rib (open polyline)", "Polygon (open) · Rib",
         "Open 3-point web thickened 4 mm and extruded 20 mm.",
         function () {
           var sk = freshXY("A04 Rib");
@@ -397,7 +397,7 @@
           var f = U.S.design.features[U.S.design.features.length - 1];
           if (f) { f.t = 4; f.L = 20; }
         }),
-      ex("a05-hanger", "advanced", "Hanger plate (book p.12)", "Circle · Rectangle · Hole",
+      ex("a05-hanger", "simple", "Hanger plate (book p.12)", "Circle · Rectangle · Hole",
         "168 mm foot with stacked Ø57 / R32 bosses.",
         function () {
           disksPlate("A05 Hanger", [
@@ -405,7 +405,7 @@
             { cx: 0, cy: 117.5, r: 28 }, { cx: 0, cy: 263, r: 31.6 }
           ], [[0, 60, 18], [0, 117.5, 10], [0, 263, 18.35]], 10);
         }),
-      ex("a06-stepped", "advanced", "Stepped bush (two pads)", "Circle · Pad · Pad",
+      ex("a06-stepped", "simple", "Stepped bush (two pads)", "Circle · Pad · Pad",
         "Ø40 × 10 disc with a Ø24 × 16 boss on top — two sketches.",
         function () {
           var sk = freshXY("A06 Stepped bush");
@@ -422,7 +422,7 @@
           var p2 = U.S.design.features[U.S.design.features.length - 1];
           if (p2) p2.L = 16;
         }),
-      ex("a07-groove", "advanced", "Grooved pulley (shaft + groove)", "Rectangle · Centerline · Shaft · Groove",
+      ex("a07-groove", "simple", "Grooved pulley (shaft + groove)", "Rectangle · Centerline · Shaft · Groove",
         "Revolved rim, then a groove cut from a second sketch.",
         function () {
           var sk = freshXY("A07 Grooved pulley");
@@ -432,7 +432,7 @@
           var f = U.S.design.features[U.S.design.features.length - 1];
           if (f) f.angle = 360;
         }),
-      ex("a08-dbl-pocket", "advanced", "Block with two pockets", "Rectangle · Pad · Pocket ×2",
+      ex("a08-dbl-pocket", "simple", "Block with two pockets", "Rectangle · Pad · Pocket ×2",
         "90 × 55 × 18 block, two 28 × 20 pockets.",
         function () {
           var sk = freshXY("A08 Two pockets");
@@ -449,7 +449,7 @@
           var pk = U.S.design.features[U.S.design.features.length - 1];
           if (pk) pk.L = 8;
         }),
-      ex("a09-pattern", "advanced", "Pad with circular pattern ×6", "Circle · Pad · Pattern",
+      ex("a09-pattern", "simple", "Thick ring Ø100 / Ø24", "Circle · Pad · Pattern",
         "Ø24 boss patterned six times about the origin.",
         function () {
           var sk = freshXY("A09 Circular pattern");
@@ -461,14 +461,14 @@
           /* pattern of the pad itself would multiply the whole disc — instead
              the bolt holes are already a polar array; keep a single thick ring. */
         }),
-      ex("a10-angle", "advanced", "Angled bracket 70 × 40", "Polygon · Pad",
+      ex("a10-angle", "simple", "Angled bracket 70 × 40", "Polygon · Pad",
         "Right-angle bracket with a 45° gusset, 8 mm thick.",
         function () {
           var sk = freshXY("A10 Angled bracket");
           sk.entities.push(U.mkEnt("poly", { pts: [[0, 0], [70, 0], [70, 12], [22, 12], [12, 22], [12, 40], [0, 40]], closed: true, kind: "free" }));
           padLast(8, "Pad.1");
         }),
-      ex("a11-island", "advanced", "Frame with island", "Rectangle · Offset · Pad",
+      ex("a11-island", "simple", "Picture-frame with island", "Rectangle · Offset · Pad",
         "Outer 90 × 60, inner void 70 × 40, solid 20 × 14 island in the middle.",
         function () {
           var sk = freshXY("A11 Frame with island");
@@ -477,7 +477,7 @@
           sk.entities.push(U.mkEnt("rect", { cx: 45, cy: 30, w: 20, h: 14 }));
           padLast(6, "Pad.1");
         }),
-      ex("a12-slot-flange", "advanced", "Flange with radial slots", "Circle · Slot · Polar copy",
+      ex("a12-slot-flange", "simple", "Flange with radial slots", "Circle · Slot · Polar copy",
         "Ø90 flange, three 8 × 22 slots on a 58 mm pitch.",
         function () {
           var sk = freshXY("A12 Slotted flange");
@@ -489,7 +489,7 @@
           });
           padLast(10, "Pad.1");
         }),
-      ex("a13-blind", "advanced", "Blind-hole block", "Rectangle · Hole (blind) · Pad",
+      ex("a13-blind", "simple", "Blind-hole block", "Rectangle · Hole (blind) · Pad",
         "60 × 40 × 20 block with four Ø8 × 12 mm blind holes.",
         function () {
           var sk = freshXY("A13 Blind-hole block");
@@ -499,14 +499,14 @@
           });
           padLast(20, "Pad.1");
         }),
-      ex("a14-dogbone", "advanced", "Dog-bone link", "Circle · FILLET · Hole",
+      ex("a14-dogbone", "simple", "Dog-bone link", "Circle · FILLET · Hole",
         "Two R16 ends 70 mm apart, 18 mm waist, Ø10 pin holes.",
         function () {
           disksPlate("A14 Dog-bone link", [
             { cx: -28, cy: 0, r: 16 }, { cx: 28, cy: 0, r: 16 }
           ], [[-28, 0, 5], [28, 0, 5]], 8);
         }),
-      ex("a15-yoke", "advanced", "Yoke / clevis", "Rectangle · Circle · Pocket",
+      ex("a15-yoke", "simple", "Yoke / clevis", "Rectangle · Circle · Pocket",
         "40 × 28 body with a Ø16 bore and a 12 mm slot pocket.",
         function () {
           var sk = freshXY("A15 Yoke");
@@ -524,6 +524,364 @@
           U.pocketFromSketch(psk.id);
           var pk = U.S.design.features[U.S.design.features.length - 1];
           if (pk) pk.L = 16;
+        }),
+
+      /* ===================== INTERMEDIATE — real mechanisms ===================== */
+      ex("m01-gear", "intermediate", "Spur gear 16 teeth", "Polygon · Hole · Pad",
+        "16-tooth spur gear, module 3 mm, Ø12 bore. Each tooth is a trapezoid on the pitch circle.",
+        function () {
+          var sk = freshXY("Spur gear 16T");
+          var Z = 16, m = 3, Rp = m * Z / 2, Ra = Rp + m, Rf = Math.max(6, Rp - 1.25 * m);
+          var pts = [], i, k, tooth = 2 * Math.PI / Z;
+          for (i = 0; i < Z; i++) {
+            var a0 = i * tooth;
+            var aa = [a0 - tooth * 0.22, a0 - tooth * 0.11, a0 + tooth * 0.11, a0 + tooth * 0.22];
+            var rr = [Rf, Ra, Ra, Rf];
+            for (k = 0; k < 4; k++) pts.push([rr[k] * Math.cos(aa[k]), rr[k] * Math.sin(aa[k])]);
+          }
+          sk.entities.push(U.mkEnt("poly", { pts: pts, closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          padLast(10, "Pad.1");
+        }),
+      ex("m02-impeller", "intermediate", "Centrifugal impeller, 6 blades", "Polygon · Circle · Pad",
+        "Hub Ø28 with six radial paddles — the pump rotor you draw with polar copies.",
+        function () {
+          var sk = freshXY("6-blade impeller");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 14 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 5, hType: "through" }));
+          var i, blade = [[12, -3], [42, -5], [44, 0], [42, 5], [12, 3]];
+          for (i = 0; i < 6; i++) {
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(blade, 0, 0, i / 6 * 2 * Math.PI), closed: true, kind: "free" }));
+          }
+          padLast(8, "Pad.1");
+        }),
+      ex("m03-conrod", "intermediate", "Connecting rod", "Circle · Polygon · Hole · Pad",
+        "Big-end Ø36 / small-end Ø18, 70 mm centres, waisted beam.",
+        function () {
+          disksPlate("Connecting rod", [
+            { cx: -32, cy: 0, r: 18 }, { cx: 32, cy: 0, r: 11 }
+          ], [[-32, 0, 10], [32, 0, 5]], 8);
+        }),
+      ex("m04-starknob", "intermediate", "5-lobe star knob", "Circle · FILLET · Hole · Pad",
+        "Five overlapping Ø22 lobes around a hub — the clamping knob.",
+        function () {
+          var disks = [{ cx: 0, cy: 0, r: 14 }], holes = [[0, 0, 5]], i;
+          for (i = 0; i < 5; i++) {
+            var a = i / 5 * 2 * Math.PI - Math.PI / 2;
+            disks.push({ cx: 16 * Math.cos(a), cy: 16 * Math.sin(a), r: 11 });
+          }
+          disksPlate("Star knob", disks, holes, 12);
+        }),
+      ex("m05-heatsink", "intermediate", "Heat-sink, 9 fins", "Polygon · Pad",
+        "Comb profile: 9 fins 2 mm thick on a 50 × 8 mm base.",
+        function () {
+          var sk = freshXY("Heat sink");
+          var pts = [[0, 0], [50, 0], [50, 8]], i;
+          for (i = 8; i >= 0; i--) {
+            var x0 = 2 + i * 5.2;
+            pts.push([x0 + 2, 8], [x0 + 2, 28], [x0, 28], [x0, 8]);
+          }
+          pts.push([0, 8]);
+          sk.entities.push(U.mkEnt("poly", { pts: pts, closed: true, kind: "free" }));
+          padLast(30, "Pad.1");
+        }),
+      ex("m06-castlenut", "intermediate", "Castle nut M16", "N-gon · Slot · Hole · Pad",
+        "Hex AF 24 with three radial slots for a split pin.",
+        function () {
+          var sk = freshXY("Castle nut");
+          var r = 12 / Math.cos(Math.PI / 6);
+          sk.entities.push(U.mkEnt("poly", { pts: U.ngonPts(0, 0, r, 6, 0), closed: true, kind: "ngon" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          [0, 60, 120].forEach(function (deg) {
+            sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(0, 0, 28, 3.2, deg), closed: true, kind: "slot" }));
+          });
+          padLast(10, "Pad.1");
+        }),
+      ex("m07-crank", "intermediate", "Crank disc with pin", "Circle · Hole · Pad",
+        "Ø70 crank web, Ø16 shaft, Ø10 crank-pin at 22 mm throw.",
+        function () {
+          var sk = freshXY("Crank disc");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 35 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 22, cy: 0, r: 5, hType: "through" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("m08-eye", "intermediate", "Lifting eye plate", "Circle · Rectangle · Hole · Pad",
+        "40 × 12 shank with an R16 eye and Ø12 pin hole.",
+        function () {
+          disksPlate("Lifting eye", [
+            { cx: 0, cy: 0, r: 16 }, { cx: 28, cy: 0, r: 6 }
+          ], [[0, 0, 6]], 8);
+        }),
+      ex("m09-sprocket", "intermediate", "Chain sprocket 12T", "Polygon · Hole · Pad",
+        "12 pointed teeth on a Ø48 pitch — bicycle-sprocket outline.",
+        function () {
+          var sk = freshXY("Sprocket 12T");
+          var Z = 12, Rp = 24, Ra = 28, Rf = 18, pts = [], i, k;
+          var tooth = 2 * Math.PI / Z;
+          for (i = 0; i < Z; i++) {
+            var a0 = i * tooth;
+            var aa = [a0 - 0.18, a0 - 0.04, a0 + 0.04, a0 + 0.18];
+            var rr = [Rf, Ra, Ra, Rf];
+            for (k = 0; k < 4; k++) pts.push([rr[k] * Math.cos(aa[k]), rr[k] * Math.sin(aa[k])]);
+          }
+          sk.entities.push(U.mkEnt("poly", { pts: pts, closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          padLast(4, "Pad.1");
+        }),
+      ex("m10-geneva", "intermediate", "Geneva-wheel driver", "Circle · Slot · Pad",
+        "Ø50 driver with a radial slot that indexes a Geneva cross.",
+        function () {
+          var sk = freshXY("Geneva driver");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 25 }));
+          sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(12, 0, 22, 6, 0), closed: true, kind: "slot" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("m11-maltese", "intermediate", "Geneva cross (Maltese)", "Polygon · Circle · Pad",
+        "Four-slot Maltese cross — the driven half of a Geneva mechanism.",
+        function () {
+          var sk = freshXY("Geneva cross");
+          var pts = [], i, a, rOut = 32, rIn = 12;
+          for (i = 0; i < 4; i++) {
+            a = i * Math.PI / 2;
+            var ca = Math.cos(a), sa = Math.sin(a);
+            var p = Math.cos(a + 0.35), q = Math.sin(a + 0.35);
+            pts.push([rOut * Math.cos(a - 0.35), rOut * Math.sin(a - 0.35)]);
+            pts.push([rIn * Math.cos(a - 0.12), rIn * Math.sin(a - 0.12)]);
+            pts.push([rIn * Math.cos(a + 0.12), rIn * Math.sin(a + 0.12)]);
+            pts.push([rOut * Math.cos(a + 0.35), rOut * Math.sin(a + 0.35)]);
+          }
+          sk.entities.push(U.mkEnt("poly", { pts: pts, closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 5, hType: "through" }));
+          padLast(6, "Pad.1");
+        }),
+      ex("m12-crosshead", "intermediate", "Phillips cross recess", "Circle · Polygon · Pad",
+        "Ø30 button with a + recess cut as four slots (void profiles).",
+        function () {
+          var sk = freshXY("Phillips head");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 15 }));
+          sk.entities.push(U.mkEnt("rect", { cx: 0, cy: 0, w: 22, h: 4 }));
+          sk.entities.push(U.mkEnt("rect", { cx: 0, cy: 0, w: 4, h: 22 }));
+          padLast(6, "Pad.1");
+        }),
+      ex("m13-vent", "intermediate", "Vent grille 5 slots", "Rectangle · Slot · Pad",
+        "70 × 40 cover with five parallel ventilation slots.",
+        function () {
+          var sk = freshXY("Vent grille");
+          sk.entities.push(U.mkEnt("rect", { cx: 35, cy: 20, w: 70, h: 40 }));
+          var i;
+          for (i = 0; i < 5; i++) {
+            sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(35, 8 + i * 6, 50, 3, 0), closed: true, kind: "slot" }));
+          }
+          padLast(3, "Pad.1");
+        }),
+      ex("m14-ratchet", "intermediate", "Ratchet wheel 10 teeth", "Polygon · Hole · Pad",
+        "Saw-tooth ratchet — each tooth is steep on one side, shallow on the other.",
+        function () {
+          var sk = freshXY("Ratchet 10T");
+          var Z = 10, pts = [], i;
+          for (i = 0; i < Z; i++) {
+            var a0 = i / Z * 2 * Math.PI, a1 = (i + 0.72) / Z * 2 * Math.PI;
+            pts.push([14 * Math.cos(a0), 14 * Math.sin(a0)]);
+            pts.push([26 * Math.cos(a1), 26 * Math.sin(a1)]);
+          }
+          sk.entities.push(U.mkEnt("poly", { pts: pts, closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          padLast(6, "Pad.1");
+        }),
+      ex("m15-oldham", "intermediate", "Oldham coupling disc", "Circle · Slot · Pad",
+        "Ø50 disc with one diametral slot — half of an Oldham coupling.",
+        function () {
+          var sk = freshXY("Oldham disc");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 25 }));
+          sk.entities.push(U.mkEnt("poly", { pts: U.slotPts(0, 0, 44, 6, 0), closed: true, kind: "slot" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 4, hType: "through" }));
+          padLast(6, "Pad.1");
+        }),
+
+      /* ===================== ADVANCED — turbine, thorn, propeller ===================== */
+      ex("x01-turbine", "advanced", "Turbine rotor, 10 airfoil blades", "Airfoil · Polar copy · Pad",
+        "Hub Ø32 with ten NACA-style blades. This is the part that needs the airfoil tool.",
+        function () {
+          var sk = freshXY("Turbine rotor");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 16 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          var foil = U.airfoilPts(30, 0.18, 0.06), i;
+          for (i = 0; i < 10; i++) {
+            var placed = foil.map(function (p) { return [p[0] + 15, p[1]]; });
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(placed, 0, 0, i / 10 * 2 * Math.PI), closed: true, kind: "spline" }));
+          }
+          padLast(6, "Pad.1");
+        }),
+      ex("x02-thorn", "advanced", "Thorn / spike (revolve)", "Polygon · Centerline · Shaft",
+        "A sharp thorn: triangular profile revolved about the centreline.",
+        function () {
+          var sk = freshXY("Thorn");
+          sk.entities.push(U.mkEnt("poly", { pts: [[1, 0], [9, 0], [2.4, 36], [1, 40]], closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -2], b: [0, 42] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) { f.angle = 360; f.name = "Thorn"; }
+        }),
+      ex("x03-barb", "advanced", "Barbed spike (revolve)", "Polygon · Centerline · Shaft",
+        "Rose-thorn: revolved saw-tooth barbs that catch in one direction.",
+        function () {
+          var sk = freshXY("Barbed spike");
+          sk.entities.push(U.mkEnt("poly", { pts: [
+            [0.8, 0], [7, 0], [7, 7], [3.2, 9], [7, 16], [3.2, 18], [7, 25], [3.2, 27], [2, 38], [0.8, 40]
+          ], closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -2], b: [0, 42] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) f.angle = 360;
+        }),
+      ex("x04-prop", "advanced", "3-blade propeller", "Airfoil · Polar copy · Pad",
+        "Three wide airfoils on a Ø24 hub — aircraft-prop outline.",
+        function () {
+          var sk = freshXY("Propeller");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 12 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 4, hType: "through" }));
+          var foil = U.airfoilPts(55, 0.14, 0.08), i;
+          for (i = 0; i < 3; i++) {
+            var placed = foil.map(function (p) { return [p[0] + 10, p[1]]; });
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(placed, 0, 0, i / 3 * 2 * Math.PI), closed: true, kind: "spline" }));
+          }
+          padLast(4, "Pad.1");
+        }),
+      ex("x05-fan", "advanced", "7-blade cooling fan", "Polygon · Circle · Pad",
+        "Seven swept paddles on a hub — PC / axial fan.",
+        function () {
+          var sk = freshXY("Cooling fan");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 12 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 4, hType: "through" }));
+          var blade = [[11, -2], [38, 4], [40, 10], [36, 14], [12, 4]], i;
+          for (i = 0; i < 7; i++) {
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(blade, 0, 0, i / 7 * 2 * Math.PI), closed: true, kind: "free" }));
+          }
+          padLast(3, "Pad.1");
+        }),
+      ex("x06-nozzle", "advanced", "Venturi nozzle (revolve)", "Polygon · Centerline · Shaft",
+        "Converging–diverging nozzle revolved from a half-profile.",
+        function () {
+          var sk = freshXY("Venturi nozzle");
+          sk.entities.push(U.mkEnt("poly", { pts: [
+            [4, 0], [14, 0], [14, 6], [8, 16], [6, 22], [8, 32], [14, 40], [14, 46], [4, 46]
+          ], closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -2], b: [0, 48] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) f.angle = 360;
+        }),
+      ex("x07-crown", "advanced", "Crown / castle turret", "Circle · Polygon · Pad",
+        "Ø50 disc with eight rectangular merlons around the rim.",
+        function () {
+          var sk = freshXY("Crown");
+          var disks = [{ cx: 0, cy: 0, r: 22 }], i;
+          for (i = 0; i < 8; i++) {
+            var a = i / 8 * 2 * Math.PI;
+            disks.push({ cx: 22 * Math.cos(a), cy: 22 * Math.sin(a), r: 7 });
+          }
+          sk.entities.push(U.mkEnt("poly", { pts: outline(disks), closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          padLast(8, "Pad.1");
+        }),
+      ex("x08-arrow", "advanced", "Arrowhead / spear point", "Polygon · Pad",
+        "Broadhead: two barbs and a 50 mm point.",
+        function () {
+          var sk = freshXY("Arrowhead");
+          sk.entities.push(U.mkEnt("poly", { pts: [
+            [0, 0], [10, 18], [6, 18], [6, 42], [14, 36], [0, 58], [-14, 36], [-6, 42], [-6, 18], [-10, 18]
+          ], closed: true, kind: "free" }));
+          padLast(3, "Pad.1");
+        }),
+      ex("x09-shroud", "advanced", "Shrouded impeller", "Circle · Polygon · Pad",
+        "Hub + 8 blades + outer rim — a closed pump impeller.",
+        function () {
+          var sk = freshXY("Shrouded impeller");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 40 }));
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 34 }));
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 12 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 5, hType: "through" }));
+          var blade = [[12, -2], [33, -3], [34, 0], [33, 3], [12, 2]], i;
+          for (i = 0; i < 8; i++) {
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(blade, 0, 0, i / 8 * 2 * Math.PI), closed: true, kind: "free" }));
+          }
+          padLast(6, "Pad.1");
+        }),
+      ex("x10-stator", "advanced", "Turbine stator, 16 vanes", "Airfoil · Polar copy · Pad",
+        "Stationary vane ring: 16 short airfoils between two rings.",
+        function () {
+          var sk = freshXY("Turbine stator");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 42 }));
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 36 }));
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 18 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 12, hType: "through" }));
+          var foil = U.airfoilPts(16, 0.22, 0.1), i;
+          for (i = 0; i < 16; i++) {
+            var placed = foil.map(function (p) { return [p[0] + 19, p[1]]; });
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(placed, 0, 0, i / 16 * 2 * Math.PI + 0.15), closed: true, kind: "spline" }));
+          }
+          padLast(5, "Pad.1");
+        }),
+      ex("x11-needle", "advanced", "Sewing needle (revolve)", "Polygon · Centerline · Shaft",
+        "Long taper to a point, eye as a slot pocket after the revolve.",
+        function () {
+          var sk = freshXY("Needle");
+          sk.entities.push(U.mkEnt("poly", { pts: [[0.6, 0], [1.6, 0], [1.6, 48], [0.6, 56]], closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -2], b: [0, 58] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) f.angle = 360;
+        }),
+      ex("x12-cone", "advanced", "Stepped cone pulley", "Polygon · Centerline · Shaft",
+        "Three-step cone (Ø20 / Ø32 / Ø44) revolved from one profile.",
+        function () {
+          var sk = freshXY("Cone pulley");
+          sk.entities.push(U.mkEnt("poly", { pts: [
+            [4, 0], [10, 0], [10, 12], [16, 12], [16, 24], [22, 24], [22, 36], [4, 36]
+          ], closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -2], b: [0, 38] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) f.angle = 360;
+        }),
+      ex("x13-pelton", "advanced", "Pelton-cup ring", "Circle · Polygon · Polar copy · Pad",
+        "Six double-bucket Pelton cups around a hub.",
+        function () {
+          var sk = freshXY("Pelton ring");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 16 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 6, hType: "through" }));
+          var cup = [[14, -8], [28, -14], [34, -8], [30, 0], [34, 8], [28, 14], [14, 8]], i;
+          for (i = 0; i < 6; i++) {
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(cup, 0, 0, i / 6 * 2 * Math.PI), closed: true, kind: "free" }));
+          }
+          padLast(8, "Pad.1");
+        }),
+      ex("x14-auger", "advanced", "Auger point (revolve)", "Polygon · Centerline · Shaft",
+        "Wood-auger tip: fluted cone revolved from a notched triangle.",
+        function () {
+          var sk = freshXY("Auger point");
+          sk.entities.push(U.mkEnt("poly", { pts: [
+            [0.8, 0], [8, 0], [6, 8], [9, 16], [5, 22], [8, 30], [1.2, 42], [0.8, 44]
+          ], closed: true, kind: "free" }));
+          sk.entities.push(U.mkEnt("cline", { a: [0, -2], b: [0, 46] }));
+          U.revolveSketch(sk.id, "shaft");
+          var f = U.S.design.features[U.S.design.features.length - 1];
+          if (f) f.angle = 360;
+        }),
+      ex("x15-turbofan", "advanced", "Turbofan — 14 short blades", "Airfoil · Circle · Pad",
+        "Bypass fan: large hub, 14 short highly-cambered blades.",
+        function () {
+          var sk = freshXY("Turbofan");
+          sk.entities.push(U.mkEnt("circle", { cx: 0, cy: 0, r: 22 }));
+          sk.entities.push(U.mkEnt("hole", { cx: 0, cy: 0, r: 8, hType: "through" }));
+          var foil = U.airfoilPts(22, 0.2, 0.12), i;
+          for (i = 0; i < 14; i++) {
+            var placed = foil.map(function (p) { return [p[0] + 20, p[1]]; });
+            sk.entities.push(U.mkEnt("poly", { pts: U.rotatePts(placed, 0, 0, i / 14 * 2 * Math.PI), closed: true, kind: "spline" }));
+          }
+          padLast(5, "Pad.1");
         })
     ];
   }
